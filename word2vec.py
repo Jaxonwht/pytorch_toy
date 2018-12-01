@@ -3,7 +3,10 @@ import torch.nn as nn
 import torch.optim as optim
 from data_loader import EmailDataset
 from torch.utils.data import DataLoader
+import random
+import math
 import torch.nn.init as init
+import matplotlib.pyplot as plt
 
 file_path = "data/emails.train"
 out_model_state_dict = "model/model_state_dict.pt"
@@ -35,17 +38,37 @@ model = Word2Vec(vocab_size, hidden_size).cuda(gpu)
 loss_fn = nn.CrossEntropyLoss()
 optimizer = optim.Adam(model.parameters(), lr=learning_rate)
 
-for e in range(epochs):
-   for x, y in enumerate(my_data_loader):
-       input_vector = torch.tensor(y[0], device=gpu)
-       target_pred = model(input_vector)
-       target_vector = torch.tensor(y[1], device=gpu)
-       loss = loss_fn(target_pred, target_vector)
-       if ((x + 1) % 1000 == 0):
-	       print("Epoch: {0}, Batch: {1}, loss: {2}".format(e, x, loss.item()))
-       optimizer.zero_grad()
-       loss.backward()
-       optimizer.step()
+# for e in range(epochs):
+#    for x, y in enumerate(my_data_loader):
+#        input_vector = torch.tensor(y[0], device=gpu)
+#        target_pred = model(input_vector)
+#        target_vector = torch.tensor(y[1], device=gpu)
+#        loss = loss_fn(target_pred, target_vector)
+#        if ((x + 1) % 1000 == 0):
+# 	       print("Epoch: {0}, Batch: {1}, loss: {2}".format(e, x, loss.item()))
+#        optimizer.zero_grad()
+#        loss.backward()
+#        optimizer.step()
+#
+# torch.save(model.state_dict(), out_model_state_dict)
+# torch.save(optimizer.state_dict(), out_optim_state_dict)
+model.load_state_dict(torch.load(out_model_state_dict))
+optimizer.load_state_dict(torch.load(out_optim_state_dict))
+model.eval()
 
-torch.save(model.state_dict(), out_model_state_dict)
-torch.save(optimizer.state_dict(), out_optim_state_dict)
+def distance_fn(tensor1, tensor2):
+    sum = 0
+    for i in range(tensor1.size()[0]):
+        sum += tensor1[i].item()**2 + tensor2[i].item()**2
+    return 1.0 / tensor1.size()[0] * math.sqrt(sum)
+
+# plot all the points
+f = open("model/results.txt", "w")
+with torch.no_grad():
+    for i in range(1000):
+        rand1 = random.randrange(vocab_size)
+        rand2 = random.randrange(vocab_size)
+        distance = distance_fn(model.weight[rand1], model.weight[rand2])
+        f.write("{}, {}, {}\n".format(email_data.getToken(rand1), email_data.getToken(rand2), distance))
+f.close()
+
