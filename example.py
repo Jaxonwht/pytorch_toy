@@ -47,3 +47,4 @@ y_tensor = (x_tensor.mm(w1) + b1).clamp(0).mm(w2) + b2
 y = y_tensor.detach().cpu().numpy()
 plt.plot(x, y)
 plt.show()
+
