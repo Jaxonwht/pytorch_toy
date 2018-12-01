@@ -32,4 +32,6 @@ class EmailDataset(Dataset):
     def getToken(self, i):
         return self.index_dict[i]
 
+    def getNumberOfToken(self):
+        return len(self.word_dict)
 
