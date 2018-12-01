@@ -6,10 +6,6 @@ from torch.utils.data import DataLoader
 
 file_path = "data/emails.train"
 gpu = torch.device("cuda")
-context_size = 1
+context_size = 2
 
 email_data = EmailDataset(file_path, context_size)
-
-
-
-

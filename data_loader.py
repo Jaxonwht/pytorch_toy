@@ -1,6 +1,6 @@
 import torch
 import numpy as np
-from torch.utils.data import DataLoader, Dataset
+from torch.utils.data import Dataset
 
 class EmailDataset(Dataset):
     def __init__(self, file_path, context_size):
@@ -8,11 +8,13 @@ class EmailDataset(Dataset):
         wordlists = [line.strip().split(" ")[1:] for line in open(file_path)]
         self.index_dict = {}
         self.word_dict = {}
+        index = 0
         for wordseq in wordlists:
             for word in wordseq:
-                if word not in self.index_dict:
-                    self.word_dict[word] = len(self.index_dict)
-                    self.index_dict[len(self.index_dict)] = word
+                if word not in self.word_dict:
+                    self.word_dict[word] = index
+                    self.index_dict[index] = word
+                    index += 1
         self.index_pair = []
         for wordseq in wordlists:
             for i in range(len(wordseq)):
