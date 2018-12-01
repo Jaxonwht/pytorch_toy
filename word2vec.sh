@@ -3,4 +3,4 @@
 #SBATCH -p gpu-common
 
 source activate opennmt
-python word2vec.py
+python -u word2vec.py

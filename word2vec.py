@@ -35,17 +35,17 @@ model = Word2Vec(vocab_size, hidden_size).cuda(gpu)
 loss_fn = nn.CrossEntropyLoss()
 optimizer = optim.Adam(model.parameters(), lr=learning_rate)
 
-# for e in range(epochs):
-#     for x, y in enumerate(my_data_loader):
-#         input_vector = torch.tensor(y[0], device=gpu)
-#         target_pred = model(input_vector)
-#         target_vector = torch.tensor(y[1], device=gpu)
-#         loss = loss_fn(target_pred, target_vector)
-#         if ((x + 1) % 1000 == 0):
-#             print("Epoch: {0}, Batch: {1}, loss: {2}".format(e, x, loss.item()))
-#         optimizer.zero_grad()
-#         loss.backward()
-#         optimizer.step()
+for e in range(epochs):
+   for x, y in enumerate(my_data_loader):
+       input_vector = torch.tensor(y[0], device=gpu)
+       target_pred = model(input_vector)
+       target_vector = torch.tensor(y[1], device=gpu)
+       loss = loss_fn(target_pred, target_vector)
+       if ((x + 1) % 1000 == 0):
+	       print("Epoch: {0}, Batch: {1}, loss: {2}".format(e, x, loss.item()))
+       optimizer.zero_grad()
+       loss.backward()
+       optimizer.step()
 
 torch.save(model.state_dict(), out_model_state_dict)
 torch.save(optimizer.state_dict(), out_optim_state_dict)
