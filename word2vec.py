@@ -3,10 +3,9 @@ import torch.nn as nn
 import torch.optim as optim
 from data_loader import EmailDataset
 from torch.utils.data import DataLoader
-import random
-import math
-import torch.nn.init as init
 import matplotlib.pyplot as plt
+import torch.nn.init as init
+from sklearn.manifold import TSNE
 
 file_path = "data/emails.train"
 out_model_state_dict = "model/model_state_dict.pt"
@@ -56,19 +55,18 @@ model.load_state_dict(torch.load(out_model_state_dict))
 optimizer.load_state_dict(torch.load(out_optim_state_dict))
 model.eval()
 
-def distance_fn(tensor1, tensor2):
-    sum = 0
-    for i in range(tensor1.size()[0]):
-        sum += tensor1[i].item()**2 + tensor2[i].item()**2
-    return 1.0 / tensor1.size()[0] * math.sqrt(sum)
+# def distance_fn(tensor1, tensor2):
+#     sum = 0
+#     for i in range(tensor1.size()[0]):
+#         sum += tensor1[i].item()**2 + tensor2[i].item()**2
+#     return 1.0 / tensor1.size()[0] * math.sqrt(sum)
 
 # plot all the points
-f = open("model/results.txt", "w")
 with torch.no_grad():
-    for i in range(1000):
-        rand1 = random.randrange(vocab_size)
-        rand2 = random.randrange(vocab_size)
-        distance = distance_fn(model.weight[rand1], model.weight[rand2])
-        f.write("{}, {}, {}\n".format(email_data.getToken(rand1), email_data.getToken(rand2), distance))
-f.close()
+    data = model.weight.cpu().numpy()
+    X_embedded = TSNE(n_components=2).fit_transform(data)
+    plt.plot(X_embedded, ".")
+    plt.show()
+
+
 
