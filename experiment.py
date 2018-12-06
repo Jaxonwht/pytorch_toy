@@ -1,11 +1,8 @@
 import torch
 
-x = torch.rand(5, 1)
+x = torch.rand(1, 2, 3)
 
-z = torch.Tensor(4, 5)
-print(z.size()[1])
+y = torch.rand(3, 4)
 
-y = x.expand(5, 6)
+print(x[:, 0, :].size())
 
-
-print(y)
