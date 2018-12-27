@@ -1,6 +1,5 @@
-import torch
-import numpy as np
 from torch.utils.data import Dataset
+
 
 class EmailDataset(Dataset):
     def __init__(self, file_path, context_size):
@@ -34,4 +33,3 @@ class EmailDataset(Dataset):
 
     def getNumberOfToken(self):
         return len(self.word_dict)
-
