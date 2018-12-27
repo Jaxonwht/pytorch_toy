@@ -10,7 +10,10 @@ from torch.utils.data import DataLoader
 file_path = "../data/emails.train"
 out_model_state_dict = "model/model_state_dict.pt"
 out_optim_state_dict = "model/optim_state_dict.pt"
-gpu = torch.device("cuda")
+if torch.cuda.is_available():
+    gpu = torch.device("cuda")
+else:
+    gpu = torch.device("cpu")
 context_size = 2
 batch_size = 32
 hidden_size = 300
@@ -32,7 +35,7 @@ class Word2Vec(nn.Module):
         return self.output(self.embed(x))
 
 
-model = Word2Vec(vocab_size, hidden_size).cuda(gpu)
+model = Word2Vec(vocab_size, hidden_size).to(gpu)
 loss_fn = nn.CrossEntropyLoss()
 optimizer = optim.Adam(model.parameters(), lr=learning_rate)
 
