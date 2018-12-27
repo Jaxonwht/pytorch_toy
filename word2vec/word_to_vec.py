@@ -41,9 +41,9 @@ optimizer = optim.Adam(model.parameters(), lr=learning_rate)
 
 for e in range(epochs):
     for x, y in enumerate(my_data_loader):
-        input_vector = torch.tensor(y[0], device=gpu)
+        input_vector = y[0].to(gpu)
         target_pred = model(input_vector)
-        target_vector = torch.tensor(y[1], device=gpu)
+        target_vector = y[1].to(gpu)
         loss = loss_fn(target_pred, target_vector)
         if (x + 1) % 1000 == 0:
             print("Epoch: {0}, Batch: {1}, loss: {2}".format(e, x, loss.item()))
