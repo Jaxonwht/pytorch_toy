@@ -1,13 +1,12 @@
 import torch
 import torch.nn as nn
 import torch.optim as optim
-from data_loader import EmailDataset
+from word2vec.data_loader import EmailDataset
 from torch.utils.data import DataLoader
 #  import matplotlib.pyplot as plt
-import torch.nn.init as init
 #  from sklearn.manifold import TSNE
 
-file_path = "data/emails.train"
+file_path = "../data/emails.train"
 out_model_state_dict = "model/model_state_dict.pt"
 out_optim_state_dict = "model/optim_state_dict.pt"
 gpu = torch.device("cuda")
