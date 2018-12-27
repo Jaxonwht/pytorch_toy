@@ -14,6 +14,7 @@ epochs = 10000
 x = torch.rand(100, 1, device=gpu) * a
 y = x.pow(2) + torch.rand(100, 1, device=gpu)
 
+
 class LinearModel(nn.Module):
     def __init__(self, D_in, H, D_out):
         super().__init__()
@@ -22,6 +23,7 @@ class LinearModel(nn.Module):
 
     def forward(self, x):
         return self.linear2(torch.sigmoid(self.linear1(x)))
+
 
 loss_fn = nn.MSELoss()
 model = LinearModel(D_in, H, D_out).cuda(gpu)

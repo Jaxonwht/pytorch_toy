@@ -18,7 +18,7 @@ learning_rate = 1e-3
 epochs = 100
 
 email_data = EmailDataset(file_path, context_size)
-vocab_size = email_data.getNumberOfToken()
+vocab_size = email_data.get_number_of_tokens()
 my_data_loader = DataLoader(email_data, shuffle=True, batch_size=batch_size)
 
 

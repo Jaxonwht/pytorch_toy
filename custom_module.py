@@ -2,6 +2,7 @@ import torch
 import torch.nn as nn
 import torch.optim as optim
 
+
 class TwoLayer(nn.Module):
     def __init__(self, D_in, H, D_out):
         super().__init__()
@@ -11,6 +12,7 @@ class TwoLayer(nn.Module):
 
     def forward(self, x):
         return self.layer2(self.activation(self.layer1(x)))
+
 
 gpu = torch.device("cuda")
 N = 64

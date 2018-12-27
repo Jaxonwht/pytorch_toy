@@ -3,6 +3,7 @@ import torch.nn as nn
 import random
 import torch.optim as optim
 
+
 class DynamicNet(nn.Module):
     def __init__(self, D_in, H, D_out):
         super().__init__()
@@ -41,5 +42,3 @@ for i in range(epochs):
     optimizer.zero_grad()
     loss.backward()
     optimizer.step()
-
-

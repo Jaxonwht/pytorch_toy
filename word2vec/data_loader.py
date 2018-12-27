@@ -28,8 +28,8 @@ class EmailDataset(Dataset):
     def __getitem__(self, index):
         return self.index_pair[index]
 
-    def getToken(self, i):
+    def get_token(self, i):
         return self.index_dict[i]
 
-    def getNumberOfToken(self):
+    def get_number_of_tokens(self):
         return len(self.word_dict)
