@@ -21,6 +21,7 @@ H = 100
 D_out = 10
 epochs = 5000
 
+
 x = torch.rand(N, D_in, device=gpu)
 y = torch.rand(N, D_out, device=gpu)
 
