@@ -16,7 +16,7 @@ else:
     gpu = torch.device("cpu")
 context_size = 2
 batch_size = 32
-hidden_size = 300
+hidden_size = 500
 learning_rate = 1e-3
 epochs = 100
 
