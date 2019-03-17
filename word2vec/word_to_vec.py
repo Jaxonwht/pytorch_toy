@@ -5,6 +5,7 @@ from word2vec.data_loader import EmailDataset
 from torch.utils.data import DataLoader
 from sklearn.manifold import TSNE
 import matplotlib.pyplot as plt
+from mpl_toolkits.mplot3d import Axes3D
 
 
 FILE_PATH = "../data/democratic5000.train"
@@ -18,7 +19,7 @@ CONTEXT_SIZE = 2
 BATCH_SIZE = 32
 HIDDEN_SIZE = 500
 LEARNING_RATE = 1e-3
-EPOCHS = 100
+EPOCHS = 10
 
 email_data = EmailDataset(FILE_PATH, CONTEXT_SIZE)
 vocab_size = email_data.get_number_of_tokens()
@@ -42,9 +43,7 @@ optimizer = optim.Adam(model.parameters(), lr=LEARNING_RATE)
 for e in range(EPOCHS):
     for x, y in enumerate(my_data_loader):
         input_vector = y[:, 0].to(gpu)
-        print(input_vector.size())
         target_pred = model(input_vector)
-        print(target_pred.size())
         target_vector = y[:, 1].to(gpu)
         loss = loss_fn(target_pred, target_vector)
         if x % 1000 == 0:
@@ -61,7 +60,11 @@ torch.save(optimizer.state_dict(), OUT_OPTIM_STATE_DICT)
 
 # plot all the points
 with torch.no_grad():
-    data = model.weight.cpu().numpy()
-    X_embedded = TSNE(n_components=2).fit_transform(data)
-    plt.plot(X_embedded, ".")
+    coordinates_high = model.embed.weight.data[0 : 200].cpu().numpy()
+    tsne_model = TSNE(n_components=2, init='pca')
+    coordinates_low = tsne_model.fit_transform(coordinates_high)
+    for i, triple in enumerate(coordinates_low):
+        plt.scatter(triple[0], triple[1], marker='x')
+        plt.annotate(email_data.get_token(i), xy=(triple[0], triple[1]))
     plt.show()
+
