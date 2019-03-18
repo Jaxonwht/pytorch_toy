@@ -2,9 +2,8 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="224006a3-0f99-463e-b905-2f6691bc71d6" name="Default Changelist" comment="">
-      <change beforePath="$PROJECT_DIR$/.idea/misc.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/misc.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/pytorch.iml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/pytorch.iml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/word2vec/data_loader.py" beforeDir="false" afterPath="$PROJECT_DIR$/word2vec/data_loader.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/word2vec/data_loader_comp.py" beforeDir="false" afterPath="$PROJECT_DIR$/word2vec/data_loader_comp.py" afterDir="false" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="SHOW_DIALOG" value="false" />
@@ -34,8 +33,8 @@
       <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/word2vec/data_loader.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="465">
-              <caret line="31" column="27" lean-forward="true" selection-end-line="36" />
+            <state relative-caret-position="330">
+              <caret line="22" column="12" lean-forward="true" selection-start-line="22" selection-start-column="12" selection-end-line="23" selection-end-column="41" />
               <folding>
                 <element signature="e#0#36#0" expanded="true" />
               </folding>
@@ -43,11 +42,11 @@
           </provider>
         </entry>
       </file>
-      <file pinned="false" current-in-tab="false">
+      <file pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/word2vec/data_loader_comp.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="375">
-              <caret line="25" column="22" lean-forward="true" selection-start-line="25" selection-start-column="22" selection-end-line="25" selection-end-column="22" />
+            <state relative-caret-position="90">
+              <caret line="7" column="14" selection-start-line="7" selection-start-column="14" selection-end-line="7" selection-end-column="14" />
               <folding>
                 <element signature="e#0#36#0" expanded="true" />
               </folding>
@@ -64,18 +63,31 @@
           </provider>
         </entry>
       </file>
-      <file pinned="false" current-in-tab="true">
+      <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/word2vec/word_to_vec_comp.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="345">
-              <caret line="50" column="57" selection-start-line="50" selection-start-column="57" selection-end-line="50" selection-end-column="57" />
+            <state relative-caret-position="375">
+              <caret line="52" column="76" selection-start-line="52" selection-start-column="76" selection-end-line="52" selection-end-column="76" />
             </state>
           </provider>
         </entry>
       </file>
       <file pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/schematics/VAE.png">
-          <provider selected="true" editor-type-id="images" />
+        <entry file="file://$PROJECT_DIR$/data/emails.train">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="-1335">
+              <caret line="46" column="31" selection-start-line="46" selection-start-column="31" selection-end-line="46" selection-end-column="31" />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/data/democratic5000.train">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="552">
+              <caret line="5000" selection-start-line="5000" selection-end-line="5000" />
+            </state>
+          </provider>
         </entry>
       </file>
       <file pinned="false" current-in-tab="false">
@@ -102,18 +114,6 @@
       <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/schematics/word2vec.png">
           <provider selected="true" editor-type-id="images" />
-        </entry>
-      </file>
-      <file pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/dynamic_computationgraph.py">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="45">
-              <caret line="6" column="23" selection-start-line="6" selection-start-column="23" selection-end-line="6" selection-end-column="23" />
-              <folding>
-                <element signature="e#0#12#0" expanded="true" />
-              </folding>
-            </state>
-          </provider>
         </entry>
       </file>
     </leaf>
@@ -151,12 +151,12 @@
         <option value="$PROJECT_DIR$/vae/variational_autoencoder.py" />
         <option value="$PROJECT_DIR$/data/democratic5000.py" />
         <option value="$PROJECT_DIR$/data/first5000.py" />
-        <option value="$PROJECT_DIR$/word2vec/data_loader.py" />
         <option value="$PROJECT_DIR$/word2vec/word_to_vec.py" />
         <option value="$PROJECT_DIR$/word2vec/word_to_vec.sh" />
         <option value="$PROJECT_DIR$/word2vec/model/word_to_vec_comp.py" />
-        <option value="$PROJECT_DIR$/word2vec/data_loader_comp.py" />
         <option value="$PROJECT_DIR$/word2vec/word_to_vec_comp.py" />
+        <option value="$PROJECT_DIR$/word2vec/data_loader.py" />
+        <option value="$PROJECT_DIR$/word2vec/data_loader_comp.py" />
       </list>
     </option>
   </component>
@@ -388,12 +388,12 @@
       <workItem from="1552181507625" duration="2026000" />
       <workItem from="1552840887485" duration="889000" />
       <workItem from="1552856515053" duration="23727000" />
-      <workItem from="1552883689553" duration="3131000" />
+      <workItem from="1552883689553" duration="3736000" />
     </task>
     <servers />
   </component>
   <component name="TimeTrackingManager">
-    <option name="totallyTimeSpent" value="40882000" />
+    <option name="totallyTimeSpent" value="41487000" />
   </component>
   <component name="TodoView">
     <todo-panel id="selected-file">
@@ -408,7 +408,7 @@
     <frame x="-2" y="1" width="1924" height="1081" extended-state="0" />
     <editor active="true" />
     <layout>
-      <window_info content_ui="combo" id="Project" order="0" visible="true" weight="0.10779082" />
+      <window_info active="true" content_ui="combo" id="Project" order="0" visible="true" weight="0.10779082" />
       <window_info id="Structure" order="1" side_tool="true" weight="0.25" />
       <window_info id="Favorites" order="2" side_tool="true" />
       <window_info anchor="bottom" id="Message" order="0" />
@@ -423,7 +423,7 @@
       <window_info anchor="bottom" id="Database Changes" order="9" />
       <window_info anchor="bottom" id="Event Log" order="10" sideWeight="0.50053364" side_tool="true" weight="0.32952183" />
       <window_info anchor="bottom" id="Terminal" order="11" weight="0.32952183" />
-      <window_info active="true" anchor="bottom" id="Python Console" order="12" sideWeight="0.4994664" visible="true" weight="0.30769232" />
+      <window_info anchor="bottom" id="Python Console" order="12" sideWeight="0.4994664" visible="true" weight="0.30769232" />
       <window_info anchor="right" id="Commander" internal_type="SLIDING" order="0" type="SLIDING" weight="0.4" />
       <window_info anchor="right" id="Ant Build" order="1" weight="0.25" />
       <window_info anchor="right" content_ui="combo" id="Hierarchy" order="2" weight="0.25" />
@@ -500,13 +500,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/data/democratic5000.train">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="552">
-          <caret line="5000" selection-start-line="5000" selection-end-line="5000" />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/data/republican5000.train">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="-80103" />
@@ -534,13 +527,6 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/schematics/tokenizer.png">
       <provider selected="true" editor-type-id="images" />
-    </entry>
-    <entry file="file://$PROJECT_DIR$/data/emails.train">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="15">
-          <caret line="46" column="31" selection-start-line="46" selection-start-column="31" selection-end-line="46" selection-end-column="31" />
-        </state>
-      </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/moses/detokenizer.perl">
       <provider selected="true" editor-type-id="text-editor">
@@ -596,6 +582,34 @@
     <entry file="file://$PROJECT_DIR$/schematics/encoder.png">
       <provider selected="true" editor-type-id="images" />
     </entry>
+    <entry file="file://$PROJECT_DIR$/word2vec/word_to_vec.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="195">
+          <caret line="13" column="11" lean-forward="true" selection-end-line="74" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/word2vec/word_to_vec_comp.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="375">
+          <caret line="52" column="76" selection-start-line="52" selection-start-column="76" selection-end-line="52" selection-end-column="76" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/data/emails.train">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="-1335">
+          <caret line="46" column="31" selection-start-line="46" selection-start-column="31" selection-end-line="46" selection-end-column="31" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/data/democratic5000.train">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="552">
+          <caret line="5000" selection-start-line="5000" selection-end-line="5000" />
+        </state>
+      </provider>
+    </entry>
     <entry file="file://$PROJECT_DIR$/example.py">
       <provider selected="true" editor-type-id="text-editor">
         <state>
@@ -605,17 +619,10 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/word2vec/word_to_vec.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="195">
-          <caret line="13" column="11" lean-forward="true" selection-end-line="74" />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/word2vec/data_loader.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="465">
-          <caret line="31" column="27" lean-forward="true" selection-end-line="36" />
+        <state relative-caret-position="330">
+          <caret line="22" column="12" lean-forward="true" selection-start-line="22" selection-start-column="12" selection-end-line="23" selection-end-column="41" />
           <folding>
             <element signature="e#0#36#0" expanded="true" />
           </folding>
@@ -624,18 +631,11 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/word2vec/data_loader_comp.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="375">
-          <caret line="25" column="22" lean-forward="true" selection-start-line="25" selection-start-column="22" selection-end-line="25" selection-end-column="22" />
+        <state relative-caret-position="90">
+          <caret line="7" column="14" selection-start-line="7" selection-start-column="14" selection-end-line="7" selection-end-column="14" />
           <folding>
             <element signature="e#0#36#0" expanded="true" />
           </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/word2vec/word_to_vec_comp.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="345">
-          <caret line="50" column="57" selection-start-line="50" selection-start-column="57" selection-end-line="50" selection-end-column="57" />
         </state>
       </provider>
     </entry>
