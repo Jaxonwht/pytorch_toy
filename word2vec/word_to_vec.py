@@ -8,7 +8,7 @@ import matplotlib.pyplot as plt
 from mpl_toolkits.mplot3d import Axes3D
 
 
-FILE_PATH = "../data/democratic5000.train"
+FILE_PATH = "../data/emails.train"
 OUT_MODEL_STATE_DICT = "model/model_state_dict.pt"
 OUT_OPTIM_STATE_DICT = "model/optim_state_dict.pt"
 if torch.cuda.is_available():
@@ -43,6 +43,7 @@ optimizer = optim.Adam(model.parameters(), lr=LEARNING_RATE)
 for e in range(EPOCHS):
     for x, y in enumerate(my_data_loader):
         input_vector = y[:, 0].to(gpu)
+        print(y)
         target_pred = model(input_vector)
         target_vector = y[:, 1].to(gpu)
         loss = loss_fn(target_pred, target_vector)
@@ -59,12 +60,12 @@ torch.save(optimizer.state_dict(), OUT_OPTIM_STATE_DICT)
 # model.eval()
 
 # plot all the points
-with torch.no_grad():
-    coordinates_high = model.embed.weight.data[0 : 200].cpu().numpy()
-    tsne_model = TSNE(n_components=2, init='pca')
-    coordinates_low = tsne_model.fit_transform(coordinates_high)
-    for i, triple in enumerate(coordinates_low):
-        plt.scatter(triple[0], triple[1], marker='x')
-        plt.annotate(email_data.get_token(i), xy=(triple[0], triple[1]))
-    plt.show()
+# with torch.no_grad():
+#     coordinates_high = model.embed.weight.data[0 : 200].cpu().numpy()
+#     tsne_model = TSNE(n_components=2, init='pca')
+#     coordinates_low = tsne_model.fit_transform(coordinates_high)
+#     for i, triple in enumerate(coordinates_low):
+#         plt.scatter(triple[0], triple[1], marker='x')
+#         plt.annotate(email_data.get_token(i), xy=(triple[0], triple[1]))
+#     plt.show()
 
