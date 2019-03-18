@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-#SBATCH --mem=20G
+#SBATCH --mem=8G
 #SBATCH -p gpu-common
 
 source activate pytorch

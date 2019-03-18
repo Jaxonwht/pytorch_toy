@@ -2,8 +2,7 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="224006a3-0f99-463e-b905-2f6691bc71d6" name="Default Changelist" comment="">
-      <change beforePath="$PROJECT_DIR$/word2vec/data_loader.py" beforeDir="false" afterPath="$PROJECT_DIR$/word2vec/data_loader.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/word2vec/data_loader_comp.py" beforeDir="false" afterPath="$PROJECT_DIR$/word2vec/data_loader_comp.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/word2vec/word_to_vec.sh" beforeDir="false" afterPath="$PROJECT_DIR$/word2vec/word_to_vec.sh" afterDir="false" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="SHOW_DIALOG" value="false" />
@@ -42,11 +41,11 @@
           </provider>
         </entry>
       </file>
-      <file pinned="false" current-in-tab="true">
+      <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/word2vec/data_loader_comp.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="90">
-              <caret line="7" column="14" selection-start-line="7" selection-start-column="14" selection-end-line="7" selection-end-column="14" />
+            <state relative-caret-position="405">
+              <caret line="27" column="35" lean-forward="true" selection-start-line="27" selection-start-column="35" selection-end-line="27" selection-end-column="35" />
               <folding>
                 <element signature="e#0#36#0" expanded="true" />
               </folding>
@@ -66,8 +65,8 @@
       <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/word2vec/word_to_vec_comp.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="375">
-              <caret line="52" column="76" selection-start-line="52" selection-start-column="76" selection-end-line="52" selection-end-column="76" />
+            <state relative-caret-position="270">
+              <caret line="45" column="23" selection-start-line="45" selection-start-column="23" selection-end-line="45" selection-end-column="23" />
             </state>
           </provider>
         </entry>
@@ -86,6 +85,15 @@
           <provider selected="true" editor-type-id="text-editor">
             <state relative-caret-position="552">
               <caret line="5000" selection-start-line="5000" selection-end-line="5000" />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file pinned="false" current-in-tab="true">
+        <entry file="file://$PROJECT_DIR$/word2vec/word_to_vec.sh">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="15">
+              <caret line="1" column="16" selection-start-line="1" selection-start-column="16" selection-end-line="1" selection-end-column="16" />
             </state>
           </provider>
         </entry>
@@ -109,11 +117,6 @@
               </folding>
             </state>
           </provider>
-        </entry>
-      </file>
-      <file pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/schematics/word2vec.png">
-          <provider selected="true" editor-type-id="images" />
         </entry>
       </file>
     </leaf>
@@ -152,11 +155,11 @@
         <option value="$PROJECT_DIR$/data/democratic5000.py" />
         <option value="$PROJECT_DIR$/data/first5000.py" />
         <option value="$PROJECT_DIR$/word2vec/word_to_vec.py" />
-        <option value="$PROJECT_DIR$/word2vec/word_to_vec.sh" />
         <option value="$PROJECT_DIR$/word2vec/model/word_to_vec_comp.py" />
-        <option value="$PROJECT_DIR$/word2vec/word_to_vec_comp.py" />
         <option value="$PROJECT_DIR$/word2vec/data_loader.py" />
         <option value="$PROJECT_DIR$/word2vec/data_loader_comp.py" />
+        <option value="$PROJECT_DIR$/word2vec/word_to_vec_comp.py" />
+        <option value="$PROJECT_DIR$/word2vec/word_to_vec.sh" />
       </list>
     </option>
   </component>
@@ -334,6 +337,9 @@
       <module name="pytorch" />
       <option name="INTERPRETER_OPTIONS" value="" />
       <option name="PARENT_ENVS" value="true" />
+      <envs>
+        <env name="PYTHONUNBUFFERED" value="1" />
+      </envs>
       <option name="SDK_HOME" value="" />
       <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/word2vec" />
       <option name="IS_MODULE_SDK" value="true" />
@@ -351,8 +357,8 @@
     </configuration>
     <list>
       <item itemvalue="Python.experiment" />
-      <item itemvalue="Python.word_to_vec" />
       <item itemvalue="Python.first5000" />
+      <item itemvalue="Python.word_to_vec" />
       <item itemvalue="Python.word_to_vec_comp" />
     </list>
     <recent_temporary>
@@ -388,12 +394,12 @@
       <workItem from="1552181507625" duration="2026000" />
       <workItem from="1552840887485" duration="889000" />
       <workItem from="1552856515053" duration="23727000" />
-      <workItem from="1552883689553" duration="3736000" />
+      <workItem from="1552883689553" duration="4271000" />
     </task>
     <servers />
   </component>
   <component name="TimeTrackingManager">
-    <option name="totallyTimeSpent" value="41487000" />
+    <option name="totallyTimeSpent" value="42022000" />
   </component>
   <component name="TodoView">
     <todo-panel id="selected-file">
@@ -427,11 +433,11 @@
       <window_info anchor="right" id="Commander" internal_type="SLIDING" order="0" type="SLIDING" weight="0.4" />
       <window_info anchor="right" id="Ant Build" order="1" weight="0.25" />
       <window_info anchor="right" content_ui="combo" id="Hierarchy" order="2" weight="0.25" />
-      <window_info anchor="right" id="SciView" order="3" sideWeight="0.49870467" weight="0.24439701" />
-      <window_info anchor="right" id="R Graphics" order="4" weight="0.32977587" />
-      <window_info anchor="right" id="R Packages" order="5" weight="0.32977587" />
-      <window_info anchor="right" id="Database" order="6" weight="0.32977587" />
-      <window_info anchor="right" x="0" y="0" width="431" height="881" id="Documentation" order="7" sideWeight="0.5012953" side_tool="true" visible="true" weight="0.24439701" />
+      <window_info anchor="right" id="SciView" order="3" sideWeight="0.4954955" visible="true" weight="0.24439701" />
+      <window_info anchor="right" id="R Graphics" order="4" sideWeight="0.496997" weight="0.32977587" />
+      <window_info anchor="right" id="R Packages" order="5" sideWeight="0.496997" weight="0.32977587" />
+      <window_info anchor="right" id="Database" order="6" sideWeight="0.4984985" weight="0.32977587" />
+      <window_info anchor="right" x="0" y="0" width="431" height="881" id="Documentation" order="7" sideWeight="0.5045045" side_tool="true" weight="0.24439701" />
     </layout>
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -544,13 +550,6 @@
     <entry file="file://$PROJECT_DIR$/schematics/Three-part-loss.png">
       <provider selected="true" editor-type-id="images" />
     </entry>
-    <entry file="file://$PROJECT_DIR$/word2vec/word_to_vec.sh">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="15">
-          <caret line="1" column="16" selection-start-line="1" selection-start-column="16" selection-end-line="1" selection-end-column="16" />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/optmizer.py">
       <provider selected="true" editor-type-id="text-editor">
         <state>
@@ -589,13 +588,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/word2vec/word_to_vec_comp.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="375">
-          <caret line="52" column="76" selection-start-line="52" selection-start-column="76" selection-end-line="52" selection-end-column="76" />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/data/emails.train">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="-1335">
@@ -631,11 +623,25 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/word2vec/data_loader_comp.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="90">
-          <caret line="7" column="14" selection-start-line="7" selection-start-column="14" selection-end-line="7" selection-end-column="14" />
+        <state relative-caret-position="405">
+          <caret line="27" column="35" lean-forward="true" selection-start-line="27" selection-start-column="35" selection-end-line="27" selection-end-column="35" />
           <folding>
             <element signature="e#0#36#0" expanded="true" />
           </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/word2vec/word_to_vec_comp.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="270">
+          <caret line="45" column="23" selection-start-line="45" selection-start-column="23" selection-end-line="45" selection-end-column="23" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/word2vec/word_to_vec.sh">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="15">
+          <caret line="1" column="16" selection-start-line="1" selection-start-column="16" selection-end-line="1" selection-end-column="16" />
         </state>
       </provider>
     </entry>
