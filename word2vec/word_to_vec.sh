@@ -3,4 +3,4 @@
 #SBATCH -p gpu-common
 
 source activate pytorch_old
-python word_to_vec_comp.py
+python -u word_to_vec_comp.py
