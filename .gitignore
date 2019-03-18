@@ -1,3 +1,4 @@
 data/
 word2vec/__pycache__/
 word2vec/model/
+.idea/
