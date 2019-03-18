@@ -2,5 +2,5 @@
 #SBATCH --mem=8G
 #SBATCH -p gpu-common
 
-source activate pytorch
+source activate pytorch_old
 python word_to_vec_comp.py
