@@ -1,11 +1,11 @@
 import torch.nn as nn
+from word2vec.word_to_vec import Word2Vec
 
 
 class Encoder(nn.Module):
-    def __init__(self, N, V, E, H, L, B):
+    def __init__(self, seq_len, vocabulary, embed, hidden, num_layers, bidirectional):
         super().__init__()
-        self.embedding = nn.Embedding(V, E)
-        self.lstm = nn.LSTM(E, H, num_layers=L, bidirectional=B)
+        self.embed = Word2Vec(vocabulary, embed)
+        self.gru = nn.GRU(input_size=embed, hidden_size=hidden, batch_first=True, num_layers=num_layers, bidirectional=bidirectional)
 
-    def init_embedding(self, pretrained):
-        self.embedding.weight.data = pretrained.data
+
