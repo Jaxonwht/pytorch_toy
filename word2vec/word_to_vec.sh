@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
-#SBATCH --mem=10G
+#SBATCH --mem=5G
 #SBATCH -p gpu-common
 
 source activate pytorch
-python word2vec/word_to_vec.py
+python word_to_vec.py

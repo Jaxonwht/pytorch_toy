@@ -18,8 +18,8 @@ else:
 CONTEXT_SIZE = 2
 BATCH_SIZE = 32
 HIDDEN_SIZE = 500
-LEARNING_RATE = 1e-3
-EPOCHS = 10
+LEARNING_RATE = 1e-4
+EPOCHS = 100
 
 email_data = EmailDataset(FILE_PATH, CONTEXT_SIZE)
 vocab_size = email_data.get_number_of_tokens()
