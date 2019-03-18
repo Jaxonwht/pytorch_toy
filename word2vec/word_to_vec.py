@@ -43,7 +43,6 @@ optimizer = optim.Adam(model.parameters(), lr=LEARNING_RATE)
 for e in range(EPOCHS):
     for x, y in enumerate(my_data_loader):
         input_vector = y[:, 0].to(gpu)
-        print(y)
         target_pred = model(input_vector)
         target_vector = y[:, 1].to(gpu)
         loss = loss_fn(target_pred, target_vector)
