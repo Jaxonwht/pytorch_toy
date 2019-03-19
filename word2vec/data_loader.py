@@ -39,3 +39,6 @@ class EmailDataset(Dataset):
 
     def get_number_of_tokens(self):
         return len(self.word_dict)
+
+    def get_index(self, token):
+        return self.word_dict[token]
