@@ -1,6 +1,4 @@
 data/
-word2vec/__pycache__/
-word2vec/model/
 .idea/
-vae/__pycache__/
-word2vec/__pycache__/
+__pycache__/
+*.pt
