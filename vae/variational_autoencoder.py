@@ -1,24 +1,24 @@
 import torch
 import torch.nn as nn
+from torch.nn.modules.sparse import Embedding
 from torch.nn.modules.linear import Linear
 from torch.nn.modules.rnn import GRU
 from torch.nn.utils.rnn import pack_sequence
 from torch.nn.utils.rnn import pad_packed_sequence
-from torch.utils.data.dataloader import DataLoader
 
 from vae.data_loader import VAEData
 from vae.encoder_unit import Encoder
 
 
 def convert_batch_to_sorted_list_pack(x):
-    list_of_sequences = [x[i] for i in range(len(x))]
-    list_of_sequences.sort(key=lambda seq: len(seq), reverse=True)
-    return pack_sequence(list_of_sequences)
+    x.sort(key=lambda seq: len(seq), reverse=True)
+    return pack_sequence(x)
 
 
 class VAE(nn.Module):
-    def __init__(self, embed, vocabulary, hidden):
+    def __init__(self, embed, vocabulary, hidden, embedding_weight):
         super().__init__()
+        self.embedding = Embedding.from_pretrained(embedding_weight)
         self.encoder_mu = Encoder(embed=embed, hidden=hidden, num_layers=NUM_OF_LAYERS, bidirectional=BI_DIRECTIONAL)
         self.encoder_var = Encoder(embed=embed, hidden=hidden, num_layers=NUM_OF_LAYERS, bidirectional=BI_DIRECTIONAL)
         self.decoder = GRU(input_size=embed, hidden_size=hidden, num_layers=NUM_OF_LAYERS, bidirectional=BI_DIRECTIONAL)
@@ -40,7 +40,7 @@ class VAE(nn.Module):
 
 if __name__ == "__main__":
     if torch.cuda.is_available():
-        my_device = torch.device("gpu")
+        my_device = torch.device("cuda")
     else:
         my_device = torch.device("cpu")
     BATCH_SIZE = 32
@@ -53,11 +53,6 @@ if __name__ == "__main__":
 
     training = "../data/democratic_only.dev.en"
     training_dataset = VAEData(training)
-    data_loader = DataLoader(training_dataset, batch_size=BATCH_SIZE, shuffle=True)
-    for x, batch in enumerate(data_loader):
-        # if x == 1:
-        #     break
-        # print(batch)
-        print(batch[0].size())
-        # vae_model = VAE(EMBEDDING_SIZE, training_dataset.get_vocab_size(), HIDDEN_SIZE).to(my_device)
-        # target = vae_model(batch)
+    for batch_num in range(len(training_dataset) // BATCH_SIZE):
+        list_of_sequences = [training_dataset[i] for i in range(BATCH_SIZE)]
+        print(len(list_of_sequences))
