@@ -23,7 +23,7 @@ class Word2Vec(nn.Module):
 
 
 if __name__ == "__main__":
-    FILE_PATH = "../data/emails.train"
+    FILE_PATH = "../data/classtrain.txt"
     OUT_MODEL_STATE_DICT = "model/model_state_dict.pt"
     OUT_OPTIM_STATE_DICT = "model/optim_state_dict.pt"
     if torch.cuda.is_available():
