@@ -1,7 +1,7 @@
 import torch
 import torch.nn as nn
 
-from vae.data_loader import VAEData
+from vae.data_loader.data_loader import VAEData
 
 
 class Encoder(nn.Module):
@@ -16,7 +16,7 @@ class Encoder(nn.Module):
 
 
 if __name__ == "__main__":
-    data = VAEData("../data/democratic_only.train.en")
+    data = VAEData("../../data/democratic_only.train.en")
     print(len(data))
     print(data[0])
     print(data[1])

@@ -1,14 +1,14 @@
 import torch
 import torch.nn as nn
-from torch.optim import Adam
-from torch.nn.modules.sparse import Embedding
 from torch.nn.modules.linear import Linear
 from torch.nn.modules.rnn import GRU
+from torch.nn.modules.sparse import Embedding
 from torch.nn.utils.rnn import pack_sequence
 from torch.nn.utils.rnn import pad_packed_sequence
+from torch.optim import Adam
 
-from vae.data_loader import VAEData
-from vae.encoder_unit import Encoder
+from vae.data_loader.data_loader import VAEData
+from vae.main_module.encoder_unit import Encoder
 
 
 def convert_batch_to_sorted_list_pack(x):
@@ -61,10 +61,12 @@ if __name__ == "__main__":
     EMBEDDING_SIZE = 500
     bidirectional = True
 
-    training = "../data/democratic_only.dev.en"
+    training = "../../data/democratic_only.dev.en"
     training_dataset = VAEData(training)
     print(training_dataset.get_vocab_size())
-    model = VAE(EMBEDDING_SIZE, training_dataset.get_vocab_size(), HIDDEN_SIZE, torch.load("../word2vec/model/model_state_dict.pt")["embed.weight"], NUM_OF_LAYERS, bidirectional=True).cuda()
+    model = VAE(EMBEDDING_SIZE, training_dataset.get_vocab_size(), HIDDEN_SIZE,
+                torch.load("../../word2vec/model/model_state_dict.pt")["embed.weight"], NUM_OF_LAYERS,
+                bidirectional=True).cuda()
     input = [training_dataset[i].to(my_device) for i in range(4)]
     print(input)
     print(model(input))

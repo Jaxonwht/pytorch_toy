@@ -4,7 +4,7 @@ sys.path.append('/dscrhome/hw186/pytorch_toy')
 import torch
 import torch.nn as nn
 import torch.optim as optim
-from word2vec.data_loader import EmailDataset
+from word2vec.data_loader.data_loader import EmailDataset
 from torch.utils.data import DataLoader
 
 
@@ -23,9 +23,9 @@ class Word2Vec(nn.Module):
 
 
 if __name__ == "__main__":
-    FILE_PATH = "../data/classtrain.txt"
-    OUT_MODEL_STATE_DICT = "model/model_state_dict.pt"
-    OUT_OPTIM_STATE_DICT = "model/optim_state_dict.pt"
+    FILE_PATH = "../../data/classtrain.txt"
+    OUT_MODEL_STATE_DICT = "../model/model_state_dict.pt"
+    OUT_OPTIM_STATE_DICT = "../model/optim_state_dict.pt"
     if torch.cuda.is_available():
         my_device = torch.device("cuda")
     else:
