@@ -1,5 +1,5 @@
 import torch.nn as nn
-from torch.nn.utils.rnn import pack_sequence
+import torch
 from torch.utils.data import Dataset
 from word2vec.data_loader import START_OF_STRING
 from word2vec.data_loader import END_OF_STRING
@@ -8,21 +8,14 @@ from word2vec.data_loader import EmailDataset
 COMPLETE_FILE = "../data/classtrain.txt"
 whole_data = EmailDataset(COMPLETE_FILE, 1)
 
-
-def convert_batch_to_sorted_list(x):
-    list_of_sequences = [x[i] for i in range(len(x))]
-    list_of_sequences.sort(key=lambda seq: len(seq), reverse=True)
-    return pack_sequence(list_of_sequences)
-
-
 class Encoder(nn.Module):
     def __init__(self, embed, hidden, num_layers, bidirectional):
         super().__init__()
-        self.gru = nn.GRU(input_size=embed, hidden_size=hidden, batch_first=True, num_layers=num_layers,
+        self.gru = nn.GRU(input_size=embed, hidden_size=hidden, num_layers=num_layers,
                           bidirectional=bidirectional)
 
     def forward(self, x):
-        out, hidden = self.gru(x)
+        _, hidden = self.gru(x)
         return hidden
 
 
@@ -52,9 +45,16 @@ class VAEData(Dataset):
     def __len__(self):
         return len(self.content)
 
+    def get_vocab_size(self):
+        return self.whole_data.get_number_of_tokens()
+
 
 if __name__ == "__main__":
     data = VAEData("../data/democratic_only.train.en")
     print(len(data))
     print(data[0])
     print(data[1])
+    rnn = nn.GRU(10, 20, 2)
+    input = torch.randn(5, 3, 10)
+    h0 = torch.randn(2, 3, 20)
+    output, hn = rnn(input, h0)
