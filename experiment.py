@@ -1,6 +1,6 @@
 import random
 
-NUMBER_EXPERIMENTS = 10**5
+NUMBER_EXPERIMENTS = 10 ** 5
 p = 0.7
 
 counts = 0
@@ -16,4 +16,4 @@ for i in range(NUMBER_EXPERIMENTS):
             tail += 1
         count += 1
     counts += count
-print(counts/NUMBER_EXPERIMENTS)
+print(counts / NUMBER_EXPERIMENTS)

@@ -1,4 +1,5 @@
 import sys
+
 sys.path.append('/dscrhome/hw186/pytorch_toy')
 import torch
 import torch.nn as nn
@@ -6,10 +7,6 @@ import torch.optim as optim
 from word2vec.data_loader_comp import EmailDataset
 from torch.utils.data import DataLoader
 from torch.autograd import Variable
-from sklearn.manifold import TSNE
-import matplotlib.pyplot as plt
-from mpl_toolkits.mplot3d import Axes3D
-
 
 FILE_PATH = "../data/emails.train"
 OUT_MODEL_STATE_DICT = "model/model_state_dict.pt"
@@ -72,4 +69,3 @@ torch.save(optimizer.state_dict(), OUT_OPTIM_STATE_DICT)
 #         plt.scatter(triple[0], triple[1], marker='x')
 #         plt.annotate(email_data.get_token(i), xy=(triple[0], triple[1]))
 #     plt.show()
-

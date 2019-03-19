@@ -6,9 +6,8 @@ import torch.nn as nn
 import torch.optim as optim
 from word2vec.data_loader import EmailDataset
 from torch.utils.data import DataLoader
-from sklearn.manifold import TSNE
-import matplotlib.pyplot as plt
-from mpl_toolkits.mplot3d import Axes3D
+
+EMBEDDING_SIZE = 32
 
 
 class Word2Vec(nn.Module):
@@ -34,7 +33,6 @@ if __name__ == "__main__":
     else:
         my_device = torch.device("cpu")
     CONTEXT_SIZE = 2
-    EMBEDDING_SIZE = 32
     HIDDEN_SIZE = 500
     LEARNING_RATE = 1e-4
     EPOCHS = 100

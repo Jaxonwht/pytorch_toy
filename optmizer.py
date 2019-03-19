@@ -19,9 +19,8 @@ model = nn.Sequential(
 ).cuda(gpu)
 loss_fn = nn.MSELoss(reduction="sum")
 
-
 lr = 1e-4
-epochs = 4*10**3
+epochs = 4 * 10 ** 3
 
 optimizer = optim.Adam(model.parameters(), lr=lr)
 
@@ -33,5 +32,3 @@ for t in range(epochs):
     optimizer.zero_grad()
     loss.backward()
     optimizer.step()
-
-

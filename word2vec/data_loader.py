@@ -1,5 +1,5 @@
-from torch.utils.data import Dataset
 import torch
+from torch.utils.data import Dataset
 
 END_OF_STRING = "&EOS"
 START_OF_STRING = "&SOS"
