@@ -30,7 +30,7 @@ class VAEData(Dataset):
                     self.content.append(line)
 
     def __getitem__(self, item):
-        return self.content[item]
+        return torch.tensor(self.content[item])
 
     def __len__(self):
         return len(self.content)
