@@ -7,8 +7,6 @@ import torch.optim as optim
 from word2vec.data_loader import EmailDataset
 from torch.utils.data import DataLoader
 
-EMBEDDING_SIZE = 32
-
 
 class Word2Vec(nn.Module):
     def __init__(self, D, H):
@@ -33,15 +31,16 @@ if __name__ == "__main__":
     else:
         my_device = torch.device("cpu")
     CONTEXT_SIZE = 2
-    HIDDEN_SIZE = 500
+    EMBEDDING_SIZE = 500
     LEARNING_RATE = 1e-4
     EPOCHS = 100
+    BATCH_SIZE = 32
 
     email_data = EmailDataset(FILE_PATH, CONTEXT_SIZE)
     vocab_size = email_data.get_number_of_tokens()
-    my_data_loader = DataLoader(email_data, shuffle=True, batch_size=EMBEDDING_SIZE)
+    my_data_loader = DataLoader(email_data, shuffle=True, batch_size=BATCH_SIZE)
 
-    model = Word2Vec(vocab_size, HIDDEN_SIZE).to(my_device)
+    model = Word2Vec(vocab_size, EMBEDDING_SIZE).to(my_device)
     loss_fn = nn.CrossEntropyLoss()
     optimizer = optim.Adam(model.parameters(), lr=LEARNING_RATE)
 

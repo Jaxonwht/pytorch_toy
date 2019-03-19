@@ -3,3 +3,4 @@ word2vec/__pycache__/
 word2vec/model/
 .idea/
 vae/__pycache__/
+word2vec/__pycache__/

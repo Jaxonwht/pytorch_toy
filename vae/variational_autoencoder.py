@@ -4,6 +4,7 @@ from torch.nn.modules.linear import Linear
 from torch.nn.modules.rnn import GRU
 from torch.nn.utils.rnn import pack_sequence
 from torch.nn.utils.rnn import pad_packed_sequence
+from torch.utils.data.dataloader import DataLoader
 
 from vae.data_loader import VAEData
 from vae.encoder_unit import Encoder
@@ -47,9 +48,16 @@ if __name__ == "__main__":
     LEARNING_RATE = 1e-3
     EPOCHS = 300
     NUM_OF_LAYERS = 1
+    EMBEDDING_SIZE = 500
     BI_DIRECTIONAL = True
 
-    training = "../data/democratic_only.train.en"
+    training = "../data/democratic_only.dev.en"
     training_dataset = VAEData(training)
-    print(training_dataset.get_vocab_size())
-    print(len(training_dataset))
+    data_loader = DataLoader(training_dataset, batch_size=BATCH_SIZE, shuffle=True)
+    for x, batch in enumerate(data_loader):
+        # if x == 1:
+        #     break
+        # print(batch)
+        print(batch[0].size())
+        # vae_model = VAE(EMBEDDING_SIZE, training_dataset.get_vocab_size(), HIDDEN_SIZE).to(my_device)
+        # target = vae_model(batch)

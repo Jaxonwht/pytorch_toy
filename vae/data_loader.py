@@ -1,4 +1,5 @@
 from torch.utils.data import Dataset
+import torch
 
 from word2vec.data_loader import END_OF_STRING
 from word2vec.data_loader import EmailDataset
