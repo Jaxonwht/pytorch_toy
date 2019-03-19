@@ -41,4 +41,6 @@ class EmailDataset(Dataset):
         return len(self.word_dict)
 
     def get_index(self, token):
+        if token not in self.word_dict:
+            return -1
         return self.word_dict[token]

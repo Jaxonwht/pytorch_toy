@@ -3,6 +3,7 @@ import torch
 
 END_OF_STRING = "&EOS"
 START_OF_STRING = "&SOS"
+UNKNOWN = "&UNKNOWN"
 
 
 class EmailDataset(Dataset):
@@ -39,3 +40,8 @@ class EmailDataset(Dataset):
 
     def get_number_of_tokens(self):
         return len(self.word_dict)
+
+    def get_index(self, token):
+        if token not in self.word_dict:
+            return -1
+        return self.word_dict[token]
