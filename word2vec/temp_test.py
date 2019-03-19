@@ -2,7 +2,7 @@ import torch
 from torch.nn import CrossEntropyLoss
 from torch.optim import Adam
 
-from word2vec.word_to_vec import Word2Vec
+from word2vec.main_module.word_to_vec import Word2Vec
 
 input = torch.randint(0, 5, (10,))
 target = torch.randint(0, 5, (10,))

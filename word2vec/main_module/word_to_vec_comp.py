@@ -4,13 +4,13 @@ sys.path.append('/dscrhome/hw186/pytorch_toy')
 import torch
 import torch.nn as nn
 import torch.optim as optim
-from word2vec.data_loader_comp import EmailDataset
+from word2vec.data_loader.data_loader_comp import EmailDataset
 from torch.utils.data import DataLoader
 from torch.autograd import Variable
 
-FILE_PATH = "../data/emails.train"
-OUT_MODEL_STATE_DICT = "model/model_state_dict.pt"
-OUT_OPTIM_STATE_DICT = "model/optim_state_dict.pt"
+FILE_PATH = "../../data/classtrain.txt"
+OUT_MODEL_STATE_DICT = "../model/model_state_dict.pt"
+OUT_OPTIM_STATE_DICT = "../model/optim_state_dict.pt"
 if torch.cuda.is_available():
     my_device = torch.cuda.set_device(0)
 else:

@@ -1,11 +1,11 @@
-from torch.utils.data import Dataset
 import torch
+from torch.utils.data import Dataset
 
-from word2vec.data_loader import END_OF_STRING
-from word2vec.data_loader import EmailDataset
-from word2vec.data_loader import START_OF_STRING
+from word2vec.data_loader.data_loader import END_OF_STRING
+from word2vec.data_loader.data_loader import EmailDataset
+from word2vec.data_loader.data_loader import START_OF_STRING
 
-COMPLETE_FILE = "../data/classtrain.txt"
+COMPLETE_FILE = "../../data/classtrain.txt"
 whole_data = EmailDataset(COMPLETE_FILE, 1)
 
 
