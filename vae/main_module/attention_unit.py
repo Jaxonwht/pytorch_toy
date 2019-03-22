@@ -6,7 +6,7 @@ import torch.nn.functional as F
 class Attention(nn.Module):
     def __init__(self, hidden):
         super().__init__()
-        self.attn = nn.Linear(4 * hidden, 2 * hidden)
+        self.attn = nn.Linear(3 * hidden, 2 * hidden)
         self.v = nn.Linear(2 * hidden, 1)
 
     def forward(self, encoder_out, hidden, lengths):
@@ -26,7 +26,7 @@ class Attention(nn.Module):
         energy = torch.zeros(encoder_out.size()[0], encoder_out.size()[1])
         for batch in range(encoder_out.size()[0]):
             energy[batch, :lengths[batch].item()] = F.softmax(self.v(torch.tanh(self.attn(temp[batch, : lengths[batch].item()]))), dim=0).squeeze(1)
-            # [seq_len, 4 x hidden] -> [seq_len, 2 x hidden] -> [seq_len, 1] -> [seq_len]
+            # [seq_len, 3 x hidden] -> [seq_len, 2 x hidden] -> [seq_len, 1] -> [seq_len]
         # energy = [batch, max_seq_len]
         context = torch.bmm(energy.unsqueeze(1), encoder_out).squeeze(1)
         # context = [batch, 2 x hidden_dim]
