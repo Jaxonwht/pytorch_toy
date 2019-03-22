@@ -1,5 +1,5 @@
-import torch.nn as nn
 import torch
+import torch.nn as nn
 import torch.nn.functional as F
 
 
@@ -25,7 +25,8 @@ class Attention(nn.Module):
         # temp = [batch, max_seq_len, 2 x encoder_hidden_dim + decoder_hidden_dim]
         energy = torch.zeros(encoder_out.size()[0], encoder_out.size()[1])
         for batch in range(encoder_out.size()[0]):
-            energy[batch, :lengths[batch].item()] = F.softmax(self.v(torch.tanh(self.attn(temp[batch, : lengths[batch].item()]))), dim=0).squeeze(1)
+            energy[batch, :lengths[batch].item()] = F.softmax(
+                self.v(torch.tanh(self.attn(temp[batch, : lengths[batch].item()]))), dim=0).squeeze(1)
             # [seq_len, 2 x encoder_hidden_dim + decoder_hidden_dim] -> [seq_len, 2 x encoder_hidden_dim] -> [seq_len, 1] -> [seq_len]
         # energy = [batch, max_seq_len]
         context = torch.bmm(energy.unsqueeze(1), encoder_out).squeeze(1)
@@ -40,4 +41,3 @@ if __name__ == "__main__":
     lengths = torch.tensor([2, 1, 1])
     context = attn_model(encoder_out, hidden, lengths)
     print(context)
-
