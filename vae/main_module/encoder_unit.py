@@ -43,7 +43,7 @@ class Encoder(nn.Module):
         hidden = self.sample(mu_hidden, logvar_hidden)
         # out = [batch, max_seq_len, 2 x encoder_hidden_dim]
         # hidden = [2 x encoder_hidden_dim, batch]
-        return out, hidden, lengths, kl_loss
+        return out, hidden, kl_loss
 
     def sample(self, mu, logvar):
         '''
