@@ -59,19 +59,10 @@ class Encoder(nn.Module):
 
 
 if __name__ == "__main__":
-<<<<<<< HEAD
-    input = [torch.tensor([1, 2, 3]), torch.tensor([4, 5])]
-    embedding = nn.Embedding(6, 2)
-    input = [embedding(x) for x in input]
-    lengths = torch.tensor([3, 2])
-    model = Encoder(2, 10)
-    out, hidden, lengths, kl_loss = model(input, lengths)
-=======
     input = [torch.randn(3, 10), torch.randn(2,10)]
     lengths = torch.tensor([3, 2])
     model = Encoder(embed=10, hidden=2)
     out, hidden, kl_loss = model(input, lengths)
->>>>>>> decoder
     print(out.size())
     print(hidden.size())
     print(kl_loss)
