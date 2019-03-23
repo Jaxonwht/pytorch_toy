@@ -16,12 +16,11 @@ class Encoder(nn.Module):
 
     def forward(self, x, lengths):
         '''
-        :param x: list of tensors of variable lengths, len(list) = batch_size
+        :param input: list of tensors of variable lengths, len(list) = batch_size, each entry in one element of the batch is [variable_seq_len, embed_dim]
         :param lengths: [batch_size]
         :return: (out, hidden, lengths, kl_loss), out is [batch, padded_seq_len, 2 x encoder_hidden_dim], hidden is [batch, 2 x encoder_hidden_dim], lengths is a list [batch_size], kl_loss is scalar
         '''
-        # x = [batch_size, padded_seq_len (not necessarily the max seq len), embedding_dim]
-        x = pad_sequence(x, batch_first=True)
+        x = pad_sequence(input, batch_first=True)
         x = pack_padded_sequence(x, lengths=lengths, batch_first=True)
         mu_out, mu_hidden = self.mu(x)
         logvar_out, logvar_hidden = self.logvar(x)
@@ -60,12 +59,19 @@ class Encoder(nn.Module):
 
 
 if __name__ == "__main__":
+<<<<<<< HEAD
     input = [torch.tensor([1, 2, 3]), torch.tensor([4, 5])]
     embedding = nn.Embedding(6, 2)
     input = [embedding(x) for x in input]
     lengths = torch.tensor([3, 2])
     model = Encoder(2, 10)
     out, hidden, lengths, kl_loss = model(input, lengths)
+=======
+    input = [torch.randn(3, 10), torch.randn(2,10)]
+    lengths = torch.tensor([3, 2])
+    model = Encoder(embed=10, hidden=2)
+    out, hidden, kl_loss = model(input, lengths)
+>>>>>>> decoder
     print(out.size())
     print(hidden.size())
     print(kl_loss)
