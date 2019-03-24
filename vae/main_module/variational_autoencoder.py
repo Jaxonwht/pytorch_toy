@@ -62,7 +62,7 @@ if __name__ == "__main__":
             # padded_input = [batch, max_seq_len]
             out = out.permute(0, 2, 1)
             # out: [batch, max_seq_len, vocab_size] -> [batch, vocab_size, max_seq_len]
-            total_loss += kl_loss + loss_fn(out[:, :, 1:], padded_input[:, 1:])
+            total_loss = kl_loss + loss_fn(out[:, :, 1:], padded_input[:, 1:])
             optim.zero_grad()
             total_loss.backward()
             optim.step()
