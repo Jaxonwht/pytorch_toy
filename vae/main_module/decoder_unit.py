@@ -6,13 +6,14 @@ from vae.main_module.attention_unit import Attention
 
 
 class Decoder(nn.Module):
-    def __init__(self, encoder_hidden, decoder_hidden, embedding_layer, leaky_relu_constant=0.1):
+    def __init__(self, encoder_hidden, decoder_hidden, embedding_layer, device, leaky_relu_constant=0.1):
         super().__init__()
+        self.device = device
         self.embedding = embedding_layer
         vocab_size = embedding_layer.weight.size()[0]
         embed = embedding_layer.weight.size()[1]
         self.gru_cell = nn.GRUCell(input_size=embed + 2 * encoder_hidden, hidden_size=decoder_hidden)
-        self.attention = Attention(encoder_hidden_dim=encoder_hidden, decoder_hidden_dim=decoder_hidden)
+        self.attention = Attention(encoder_hidden_dim=encoder_hidden, decoder_hidden_dim=decoder_hidden, device=device)
         self.interpret = nn.Linear(in_features=decoder_hidden, out_features=vocab_size)
         self.token_activation = nn.LeakyReLU(leaky_relu_constant)
 
@@ -27,7 +28,7 @@ class Decoder(nn.Module):
         input = [self.embedding(token) for token in input]
         paddded_input = pad_sequence(input, batch_first=True)
         # padded_input = [batch, max_seq_len, embed]
-        out = torch.zeros(len(lengths), encoder_outs.size()[1], self.embedding.weight.size()[0])
+        out = torch.zeros(len(lengths), encoder_outs.size()[1], self.embedding.weight.size()[0], device=self.device)
         # out = [batch, max_seq_len, vocab_size]
         out[:, 0, 0] = torch.ones(len(lengths))
         for index in range(1, encoder_outs.size()[1]):
@@ -36,7 +37,7 @@ class Decoder(nn.Module):
             if torch.rand(1) < teacher_forcing_ratio:
                 selected = paddded_input[:, index - 1, :]
             else:
-                selected = self.embedding(torch.argmax(out[:, index - 1, :], dim=1))
+                selected = self.embedding(torch.argmax(out[:, index - 1, :], dim=1).to(self.device))
             # selected = [batch, embed]
             modified_input = torch.cat((selected, context), dim=1)
             # modified_input = [batch, embed + 2 x encoder_hidden_dim]
@@ -52,4 +53,4 @@ if __name__ == "__main__":
     hidden = torch.randn(3, 2)
     encoder_outs = torch.randn(3, 5, 2 * 3)
     outs = model(input, hidden, encoder_outs, lengths)
-    print(outs.size())
+    print(outs[:, 0, :])
