@@ -56,7 +56,7 @@ class Encoder(nn.Module):
         :return: [embedding_dim]
         '''
         std = torch.exp(0.5 * logvar)
-        eps = torch.rand_like(std)
+        eps = torch.randn_like(std)
         return mu + torch.mul(eps, std)
 
     def kl_convergence_loss(self, mu, logvar):
