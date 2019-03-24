@@ -11,7 +11,7 @@ from vae.main_module.encoder_unit import Encoder
 class VAE(nn.Module):
     def __init__(self, embed, encoder_hidden, decoder_hidden, device, embedding_weights=None, vocabulary=None):
         super().__init__()
-        if not vocabulary:
+        if vocabulary:
             embedding = Embedding(vocabulary, embed)
         else:
             embedding = Embedding.from_pretrained(embeddings=embedding_weights)
@@ -48,7 +48,7 @@ if __name__ == "__main__":
     WORD2VEC_WEIGHT = "../../word2vec/model/model_state_dict.pt"
 
     training_dataset = VAEData(filepath=TRAINING, vocab_data_file=VOCAB, max_seq_len=MAX_SEQ_LEN)
-    model = VAE(embed=EMBEDDING_SIZE, vocabulary=training_dataset.get_vocab_size(), encoder_hidden=ENCODER_HIDDEN_SIZE, decoder_hidden=DECODER_HIDDEN_SIZE, device=my_device, embedding_weights=torch.load(WORD2VEC_WEIGHT)["embed.weight"]).to(my_device)
+    model = VAE(embed=EMBEDDING_SIZE, encoder_hidden=ENCODER_HIDDEN_SIZE, decoder_hidden=DECODER_HIDDEN_SIZE, device=my_device, embedding_weights=torch.load(WORD2VEC_WEIGHT)["embed.weight"]).to(my_device)
     optim = torch.optim.Adam(model.parameters(), lr=LEARNING_RATE)
     loss_fn = nn.CrossEntropyLoss(ignore_index=-1)
     total_loss = torch.zeros(1).to(my_device)
