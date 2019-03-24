@@ -10,7 +10,7 @@ whole_data = EmailDataset(COMPLETE_FILE, 1)
 
 
 class VAEData(Dataset):
-    def __init__(self, filepath):
+    def __init__(self, filepath, max_seq_len):
         super().__init__()
         self.whole_data = EmailDataset(COMPLETE_FILE, 1)
         self.content = []
@@ -19,6 +19,8 @@ class VAEData(Dataset):
                 line = line.strip().split(" ")[1:]
                 line.append(END_OF_STRING)
                 line.insert(0, START_OF_STRING)
+                if len(line) > max_seq_len:
+                    continue
                 add = True
                 for index, token in enumerate(line):
                     num = self.whole_data.get_index(token)
