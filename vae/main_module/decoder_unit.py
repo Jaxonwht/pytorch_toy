@@ -6,7 +6,7 @@ from vae.main_module.attention_unit import Attention
 
 
 class Decoder(nn.Module):
-    def __init__(self, encoder_hidden, decoder_hidden, embedding_layer):
+    def __init__(self, encoder_hidden, decoder_hidden, embedding_layer, leaky_relu_constant=0.1):
         super().__init__()
         self.embedding = embedding_layer
         vocab_size = embedding_layer.weight.size()[0]
@@ -14,7 +14,7 @@ class Decoder(nn.Module):
         self.gru_cell = nn.GRUCell(input_size=embed + 2 * encoder_hidden, hidden_size=decoder_hidden)
         self.attention = Attention(encoder_hidden_dim=encoder_hidden, decoder_hidden_dim=decoder_hidden)
         self.interpret = nn.Linear(in_features=decoder_hidden, out_features=vocab_size)
-        self.token_activation = nn.LeakyReLU()
+        self.token_activation = nn.LeakyReLU(leaky_relu_constant)
 
     def forward(self, input, hidden, encoder_outs, lengths, teacher_forcing_ratio=0.5):
         '''
@@ -24,7 +24,6 @@ class Decoder(nn.Module):
         :param lengths: [batch]
         :param teacher_forcing_ratio: scalar
         '''
-        reconstruction_loss = torch.zeros(1)
         input = [self.embedding(token) for token in input]
         paddded_input = pad_sequence(input, batch_first=True)
         # padded_input = [batch, max_seq_len, embed]
