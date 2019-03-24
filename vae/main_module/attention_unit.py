@@ -4,8 +4,9 @@ import torch.nn.functional as F
 
 
 class Attention(nn.Module):
-    def __init__(self, encoder_hidden_dim, decoder_hidden_dim):
+    def __init__(self, encoder_hidden_dim, decoder_hidden_dim, device):
         super().__init__()
+        self.device = device
         self.attn = nn.Linear(2 * encoder_hidden_dim + decoder_hidden_dim, 2 * encoder_hidden_dim)
         self.v = nn.Linear(2 * encoder_hidden_dim, 1)
 
@@ -23,7 +24,7 @@ class Attention(nn.Module):
         # hidden = [batch, max_seq_len, decoder_hidden_dim]
         temp = torch.cat((hidden, encoder_out), dim=2)
         # temp = [batch, max_seq_len, 2 x encoder_hidden_dim + decoder_hidden_dim]
-        energy = torch.zeros(encoder_out.size()[0], encoder_out.size()[1])
+        energy = torch.zeros(encoder_out.size()[0], encoder_out.size()[1]).to(self.device)
         for batch in range(encoder_out.size()[0]):
             energy[batch, :lengths[batch].item()] = F.softmax(
                 self.v(torch.tanh(self.attn(temp[batch, : lengths[batch].item()]))), dim=0).squeeze(1)
