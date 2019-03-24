@@ -12,14 +12,14 @@ class Attention(nn.Module):
     def forward(self, encoder_out, hidden, lengths):
         '''
         :param encoder_out: [batch, max_seq_len, 2 x encoder_hidden_dim]
-        :param hidden: [decoder_hidden_dim, batch]
+        :param hidden: [batch, decoder_hidden_dim]
         :param lengths: [batch]
         '''
         hidden = hidden.unsqueeze(2)
-        # hidden = [decoder_hidden_dim, batch, 1]
+        # hidden = [batch, hidden_dim, 1]
         hidden = hidden.repeat(1, 1, encoder_out.size()[1])
-        # hidden = [decoder_hidden_dim, batch, max_seq_len]
-        hidden = hidden.permute(1, 2, 0)
+        # hidden = [batch, decoder_hidden_dim, max_seq_len]
+        hidden = hidden.permute(0, 2, 1)
         # hidden = [batch, max_seq_len, decoder_hidden_dim]
         temp = torch.cat((hidden, encoder_out), dim=2)
         # temp = [batch, max_seq_len, 2 x encoder_hidden_dim + decoder_hidden_dim]
@@ -36,8 +36,8 @@ class Attention(nn.Module):
 
 if __name__ == "__main__":
     attn_model = Attention(3, 4)
-    encoder_out = torch.randn(3, 3, 6)
-    hidden = torch.randn(4, 3)
-    lengths = torch.tensor([2, 1, 1])
+    encoder_out = torch.randn(5, 3, 6)
+    hidden = torch.randn(5, 4)
+    lengths = torch.tensor([3, 2, 1, 1, 1])
     context = attn_model(encoder_out, hidden, lengths)
     print(context)
