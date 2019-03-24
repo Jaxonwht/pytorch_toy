@@ -6,9 +6,8 @@ from torch.nn.utils.rnn import pad_sequence
 
 
 class Encoder(nn.Module):
-    def __init__(self, hidden, embedding_layer, num_layers=1, bidirectional=True, max_seq_len=50):
+    def __init__(self, hidden, embedding_layer, num_layers=1, bidirectional=True):
         super().__init__()
-        self.max_seq_len = max_seq_len
         self.embedding = embedding_layer
         embed = embedding_layer.weight.size()[1]
         self.mu = nn.GRU(input_size=embed, hidden_size=hidden, num_layers=num_layers,
@@ -30,10 +29,10 @@ class Encoder(nn.Module):
         # out is a padded seq
         # hidden = [2, batch, 2 x encoder_hidden_dim]
         # hidden can be separated into part = hidden.view(num_layers, num_directions, batch, hidden_size)
-        mu_out_list, _ = pad_packed_sequence(mu_out, batch_first=True, total_length=self.max_seq_len)
-        logvar_out_list, _ = pad_packed_sequence(logvar_out, batch_first=True, total_length=self.max_seq_len)
+        mu_out_list, _ = pad_packed_sequence(mu_out, batch_first=True, total_length=lengths[0])
+        logvar_out_list, _ = pad_packed_sequence(logvar_out, batch_first=True, total_length=lengths[0])
         # both out lists = [batch, padded_seq_len, 2 x encoder_hidden_dim]
-        out = torch.zeros(len(lengths), self.max_seq_len, 2 * self.mu.hidden_size)
+        out = torch.zeros(len(lengths), lengths[0], 2 * self.mu.hidden_size)
         kl_loss = torch.zeros(1)
         for batch in range(len(lengths)):
             out[batch, :lengths[batch].item()] = self.sample(mu_out_list[batch, :lengths[batch].item()],
