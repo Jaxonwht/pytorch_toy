@@ -47,7 +47,11 @@ class Decoder(nn.Module):
 
 
 if __name__ == "__main__":
-    model = Decoder(3, 2, nn.Embedding(7, 10))
+    if torch.cuda.is_available():
+        my_device = torch.device("cpu")
+    else:
+        my_device = torch.device("gpu")
+    model = Decoder(3, 2, nn.Embedding(7, 10), my_device)
     input = [torch.randint(7, (5,)), torch.randint(7, (4,)), torch.randint(7, (2,))]
     lengths = torch.tensor([5, 4, 2])
     hidden = torch.randn(3, 2)

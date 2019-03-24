@@ -36,7 +36,11 @@ class Attention(nn.Module):
 
 
 if __name__ == "__main__":
-    attn_model = Attention(3, 4)
+    if torch.cuda.is_available():
+        my_device = torch.device("cpu")
+    else:
+        my_device = torch.device("gpu")
+    attn_model = Attention(3, 4, my_device)
     encoder_out = torch.randn(5, 3, 6)
     hidden = torch.randn(5, 4)
     lengths = torch.tensor([3, 2, 1, 1, 1])

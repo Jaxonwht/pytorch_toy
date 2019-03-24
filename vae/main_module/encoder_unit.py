@@ -64,9 +64,13 @@ class Encoder(nn.Module):
 
 
 if __name__ == "__main__":
+    if torch.cuda.is_available():
+        my_device = torch.device("cpu")
+    else:
+        my_device = torch.device("gpu")
     input = [torch.randint(6, (5,)), torch.randint(6, (3,)), torch.randint(6, (2,))]
     lengths = torch.tensor([5, 3, 2])
-    model = Encoder(hidden=4, embedding_layer=nn.Embedding(6, 10))
+    model = Encoder(hidden=4, embedding_layer=nn.Embedding(6, 10), device=my_device)
     out, hidden, kl_loss = model(input, lengths)
     print(out.size())
     print(hidden.size())
