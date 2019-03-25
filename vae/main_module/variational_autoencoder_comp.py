@@ -1,11 +1,11 @@
 import torch.nn as nn
 import torch.optim
-from torch.nn.modules.linear import Linear
-from vae.main_module.decoder_unit_comp import Decoder
-from torch.nn.modules.sparse import Embedding
 from torch.autograd import Variable
+from torch.nn.modules.linear import Linear
+from torch.nn.modules.sparse import Embedding
 
 from vae.data_loader.data_loader_comp import VAEData
+from vae.main_module.decoder_unit_comp import Decoder
 from vae.main_module.encoder_unit_comp import Encoder
 
 
@@ -47,7 +47,8 @@ if __name__ == "__main__":
     MODEL_FILE_PATH = "../model/checkpoint.pt"
 
     training_dataset = VAEData(filepath=TRAINING, vocab_data_file=VOCAB, max_seq_len=MAX_SEQ_LEN)
-    model = VAE(embed=EMBEDDING_SIZE, encoder_hidden=ENCODER_HIDDEN_SIZE, decoder_hidden=DECODER_HIDDEN_SIZE, embedding_weights=torch.load(WORD2VEC_WEIGHT)["embed.weight"]).cuda()
+    model = VAE(embed=EMBEDDING_SIZE, encoder_hidden=ENCODER_HIDDEN_SIZE, decoder_hidden=DECODER_HIDDEN_SIZE,
+                embedding_weights=torch.load(WORD2VEC_WEIGHT)["embed.weight"]).cuda()
     optim = torch.optim.Adam(model.parameters(), lr=LEARNING_RATE)
     loss_fn = nn.CrossEntropyLoss(ignore_index=-1)
     for epoch in range(EPOCHS):

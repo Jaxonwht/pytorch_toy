@@ -1,7 +1,7 @@
 import torch
 import torch.nn as nn
-from torch.nn.utils.rnn import pack_padded_sequence
 from torch.autograd import Variable
+
 from vae.main_module.attention_unit_comp import Attention
 
 
@@ -50,7 +50,8 @@ class Decoder(nn.Module):
 
 if __name__ == "__main__":
     model = Decoder(3, 2, nn.Embedding(7, 10)).cuda()
-    input = [Variable(torch.LongTensor([4, 2, 0, 1, 6]).cuda()), Variable(torch.LongTensor([6, 3, 1, 2]).cuda()), Variable(torch.LongTensor([4, 5]).cuda())]
+    input = [Variable(torch.LongTensor([4, 2, 0, 1, 6]).cuda()), Variable(torch.LongTensor([6, 3, 1, 2]).cuda()),
+             Variable(torch.LongTensor([4, 5]).cuda())]
     lengths = [5, 4, 2]
     hidden = Variable(torch.randn(3, 2).cuda())
     encoder_outs = Variable(torch.randn(3, 5, 2 * 3).cuda())
