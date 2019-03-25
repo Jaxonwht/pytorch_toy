@@ -44,6 +44,7 @@ if __name__ == "__main__":
     VOCAB = "../../data/classtrain.txt"
     TRAINING = "../../data/democratic_only.dev.en"
     WORD2VEC_WEIGHT = "../../word2vec/model/model_state_dict.pt"
+    MODEL_FILE_PATH = "../model/checkpoint.pt"
 
     training_dataset = VAEData(filepath=TRAINING, vocab_data_file=VOCAB, max_seq_len=MAX_SEQ_LEN)
     model = VAE(embed=EMBEDDING_SIZE, encoder_hidden=ENCODER_HIDDEN_SIZE, decoder_hidden=DECODER_HIDDEN_SIZE, embedding_weights=torch.load(WORD2VEC_WEIGHT)["embed.weight"]).cuda()
@@ -68,4 +69,7 @@ if __name__ == "__main__":
             optim.zero_grad()
             total_loss.backward()
             optim.step()
-            print("Epoch {}, Batch {}, loss {}".format(epoch, batch, total_loss[0]))
+            if batch % 100 == 0:
+                print("Epoch {}, Batch {}, Loss {}".format(epoch, batch, total_loss.data[0]))
+        torch.save({"Epoch": epoch, "Loss": total_loss.data[0], "model_state_dict": model.state_dict(),
+                    "optimizer_state_dict": optim.state_dict()}, MODEL_FILE_PATH)
