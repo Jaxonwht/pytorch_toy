@@ -1,3 +1,6 @@
+import sys
+
+sys.path.append('/dscrhome/hw186/pytorch_toy')
 import torch.nn as nn
 import torch.optim
 from torch.autograd import Variable
