@@ -24,7 +24,7 @@ class Encoder(nn.Module):
         input = Variable(torch.zeros(len(lengths), lengths[0], self.embedding.weight.size()[1]).cuda())
         # input = [batch, max_seq_len, embed]
         x = [self.embedding(token) for token in x]
-        for seq in range(len(x)):
+        for seq in range(len(lengths)):
             input[seq, :lengths[seq], :] = x[seq]
         x = pack_padded_sequence(input, lengths=lengths, batch_first=True)
         mu_out, mu_hidden = self.mu(x)
