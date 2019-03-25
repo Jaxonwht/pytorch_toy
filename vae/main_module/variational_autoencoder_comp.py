@@ -67,7 +67,7 @@ if __name__ == "__main__":
                 padded_input[batch_index, :lengths[batch_index]] = input[batch_index]
             out = out.permute(0, 2, 1)
             # out: [batch, max_seq_len, vocab_size] -> [batch, vocab_size, max_seq_len]
-            reconstruction_loss = torch.zeros(1).cuda()
+            reconstruction_loss = Variable(torch.zeros(1).cuda())
             for token_index in range(1, lengths[0]):
                 reconstruction_loss += loss_fn(out[:, :, token_index], padded_input[:, token_index])
             total_loss = kl_loss + reconstruction_loss
