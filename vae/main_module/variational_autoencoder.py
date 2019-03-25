@@ -45,7 +45,7 @@ if __name__ == "__main__":
     EPOCHS = 300
     EMBEDDING_SIZE = 500
     VOCAB = "../../data/classtrain.txt"
-    TRAINING = "../../data/democratic_only.dev.en"
+    TRAINING = "../../data/mixed_train.txt"
     WORD2VEC_WEIGHT = "../../word2vec/model/model_state_dict.pt"
 
     training_dataset = VAEData(filepath=TRAINING, vocab_data_file=VOCAB, max_seq_len=MAX_SEQ_LEN)
@@ -64,8 +64,11 @@ if __name__ == "__main__":
             # padded_input = [batch, max_seq_len]
             out = out.permute(0, 2, 1)
             # out: [batch, max_seq_len, vocab_size] -> [batch, vocab_size, max_seq_len]
-            total_loss = kl_loss + loss_fn(out[:, :, 1:], padded_input[:, 1:])
+            reconstruction_loss = torch.zeros(1, device=my_device)
+            for token_index in range(1, lengths[0]):
+                reconstruction_loss += loss_fn(out[:, :, token_index], padded_input[:, token_index])
+            total_loss = kl_loss + reconstruction_loss
             optim.zero_grad()
             total_loss.backward()
             optim.step()
-            print("Epoch {}, Batch {}, loss {}".format(epoch, batch, total_loss.item()))
+            print("Epoch {}, Batch {}, KL Loss {}, Reconstruction Loss {}, Total Loss {}".format(epoch, batch, kl_loss.item(), reconstruction_loss.item(), total_loss.item()))

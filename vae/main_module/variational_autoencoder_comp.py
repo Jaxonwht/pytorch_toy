@@ -67,13 +67,18 @@ if __name__ == "__main__":
                 padded_input[batch_index, :lengths[batch_index]] = input[batch_index]
             out = out.permute(0, 2, 1)
             # out: [batch, max_seq_len, vocab_size] -> [batch, vocab_size, max_seq_len]
-            total_loss = kl_loss
+            reconstruction_loss = torch.zeros(1).cuda()
             for token_index in range(1, lengths[0]):
-                total_loss += loss_fn(out[:, :, token_index], padded_input[:, token_index])
+                reconstruction_loss += loss_fn(out[:, :, token_index], padded_input[:, token_index])
+            total_loss = kl_loss + reconstruction_loss
             optim.zero_grad()
             total_loss.backward()
             optim.step()
             if batch % 10 == 0:
-                print("Epoch {}, Batch {}, Loss {}".format(epoch, batch, total_loss.data[0]))
-        torch.save({"Epoch": epoch, "Loss": total_loss.data[0], "model_state_dict": model.state_dict(),
-                    "optimizer_state_dict": optim.state_dict()}, MODEL_FILE_PATH)
+                print("Epoch {}, Batch {}, KL Loss {}, Reconstruction Loss {}, Total Loss {}".format(epoch, batch, kl_loss.data[0],
+                                                                                   reconstruction_loss.data[0], total_loss.data[0]))
+        print("Saving checkpoints...")
+        torch.save(
+            {"Epoch": epoch, "KL Loss": kl_loss.data[0], "Reconstruction Loss": reconstruction_loss.data[0], "Total Loss": total_loss.data[0],
+             "model_state_dict": model.state_dict(),
+             "optimizer_state_dict": optim.state_dict()}, MODEL_FILE_PATH)
