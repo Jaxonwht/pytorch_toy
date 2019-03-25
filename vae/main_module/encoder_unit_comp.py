@@ -1,8 +1,8 @@
 import torch
 import torch.nn as nn
+from torch.autograd import Variable
 from torch.nn.utils.rnn import pack_padded_sequence
 from torch.nn.utils.rnn import pad_packed_sequence
-from torch.autograd import Variable
 
 
 class Encoder(nn.Module):
@@ -39,7 +39,7 @@ class Encoder(nn.Module):
         kl_loss = Variable(torch.zeros(1).cuda())
         for batch in range(len(lengths)):
             out[batch, :lengths[batch]] = self.sample(mu_out_list[batch, :lengths[batch]],
-                                                             logvar_out_list[batch, :lengths[batch]])
+                                                      logvar_out_list[batch, :lengths[batch]])
             kl_loss = kl_loss.add(
                 self.kl_convergence_loss(mu_out_list[batch, :lengths[batch]],
                                          logvar_out_list[batch, :lengths[batch]]))
@@ -66,7 +66,8 @@ class Encoder(nn.Module):
 
 
 if __name__ == "__main__":
-    input = [Variable(torch.LongTensor([3, 4, 2, 1, 0]).cuda()), Variable(torch.LongTensor([1, 2, 5]).cuda()), Variable(torch.LongTensor([5, 3]).cuda())]
+    input = [Variable(torch.LongTensor([3, 4, 2, 1, 0]).cuda()), Variable(torch.LongTensor([1, 2, 5]).cuda()),
+             Variable(torch.LongTensor([5, 3]).cuda())]
     lengths = [5, 3, 2]
     model = Encoder(hidden=4, embedding_layer=nn.Embedding(6, 10)).cuda()
     out, hidden, kl_loss = model(input, lengths)

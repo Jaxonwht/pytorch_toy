@@ -1,10 +1,10 @@
 import torch.nn as nn
 import torch.optim
 from torch.nn.modules.linear import Linear
-from vae.main_module.decoder_unit import Decoder
 from torch.nn.modules.sparse import Embedding
 
 from vae.data_loader.data_loader import VAEData
+from vae.main_module.decoder_unit import Decoder
 from vae.main_module.encoder_unit import Encoder
 
 
@@ -18,7 +18,8 @@ class VAE(nn.Module):
         self.encoder = Encoder(embedding_layer=embedding, hidden=encoder_hidden, device=device)
         self.translator = Linear(in_features=encoder_hidden * 2, out_features=decoder_hidden)
         self.translator_activation = nn.LeakyReLU()
-        self.decoder = Decoder(encoder_hidden=encoder_hidden, decoder_hidden=decoder_hidden, embedding_layer=embedding, device=device)
+        self.decoder = Decoder(encoder_hidden=encoder_hidden, decoder_hidden=decoder_hidden, embedding_layer=embedding,
+                               device=device)
 
     def forward(self, x, lengths):
         '''
@@ -48,7 +49,8 @@ if __name__ == "__main__":
     WORD2VEC_WEIGHT = "../../word2vec/model/model_state_dict.pt"
 
     training_dataset = VAEData(filepath=TRAINING, vocab_data_file=VOCAB, max_seq_len=MAX_SEQ_LEN)
-    model = VAE(embed=EMBEDDING_SIZE, encoder_hidden=ENCODER_HIDDEN_SIZE, decoder_hidden=DECODER_HIDDEN_SIZE, device=my_device, embedding_weights=torch.load(WORD2VEC_WEIGHT)["embed.weight"]).to(my_device)
+    model = VAE(embed=EMBEDDING_SIZE, encoder_hidden=ENCODER_HIDDEN_SIZE, decoder_hidden=DECODER_HIDDEN_SIZE,
+                device=my_device, embedding_weights=torch.load(WORD2VEC_WEIGHT)["embed.weight"]).to(my_device)
     optim = torch.optim.Adam(model.parameters(), lr=LEARNING_RATE)
     loss_fn = nn.CrossEntropyLoss(ignore_index=-1)
     total_loss = torch.zeros(1).to(my_device)
