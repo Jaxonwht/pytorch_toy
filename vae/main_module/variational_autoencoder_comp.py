@@ -45,7 +45,7 @@ if __name__ == "__main__":
     EPOCHS = 300
     EMBEDDING_SIZE = 500
     VOCAB = "../../data/classtrain.txt"
-    TRAINING = "../../data/democratic_only.dev.en"
+    TRAINING = "../../data/mixed_train.txt"
     WORD2VEC_WEIGHT = "../../word2vec/model/model_state_dict.pt"
     MODEL_FILE_PATH = "../model/checkpoint.pt"
 
@@ -73,7 +73,7 @@ if __name__ == "__main__":
             optim.zero_grad()
             total_loss.backward()
             optim.step()
-            if batch % 100 == 0:
+            if batch % 10 == 0:
                 print("Epoch {}, Batch {}, Loss {}".format(epoch, batch, total_loss.data[0]))
         torch.save({"Epoch": epoch, "Loss": total_loss.data[0], "model_state_dict": model.state_dict(),
                     "optimizer_state_dict": optim.state_dict()}, MODEL_FILE_PATH)
