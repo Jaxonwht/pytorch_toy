@@ -25,14 +25,14 @@ class VAE(nn.Module):
         self.translator_activation = nn.LeakyReLU()
         self.decoder = Decoder(encoder_hidden=encoder_hidden, decoder_hidden=decoder_hidden, embedding_layer=embedding)
 
-    def forward(self, x, lengths):
+    def forward(self, x, lengths, teacher_forcing_ratio=0.5):
         '''
         :param x: list of tensors, len(list) = batch, each tensor is [variable_seq_len]
         :param lengths: [batch]
         '''
         encoder_outs, encoder_hidden, kl_loss = self.encoder(x, lengths)
         decoder_hidden = self.translator_activation(self.translator(encoder_hidden))
-        out = self.decoder(x, decoder_hidden, encoder_outs, lengths)
+        out = self.decoder(x, decoder_hidden, encoder_outs, lengths, teacher_forcing_ratio=teacher_forcing_ratio)
         return out, kl_loss
 
 
@@ -63,7 +63,7 @@ if __name__ == "__main__":
             input = [Variable(training_dataset[batch * BATCH_SIZE + i].cuda()) for i in range(BATCH_SIZE)]
             input.sort(key=lambda seq: len(seq), reverse=True)
             lengths = [len(seq) for seq in input]
-            out, kl_loss = model(input, lengths)
+            out, kl_loss = model(input, lengths, teacher_forcing_ratio=0.85)
             padded_input = Variable(torch.zeros(len(lengths), lengths[0]).type(torch.LongTensor).cuda())
             # padded_input = [batch, max_seq_len]
             padded_input.fill_(-1)
@@ -74,7 +74,7 @@ if __name__ == "__main__":
             reconstruction_loss = Variable(torch.zeros(1).cuda())
             for token_index in range(1, lengths[0]):
                 reconstruction_loss += loss_fn(out[:, :, token_index], padded_input[:, token_index])
-            total_loss = kl_loss / 100000 + reconstruction_loss
+            total_loss = reconstruction_loss
             optim.zero_grad()
             total_loss.backward()
             optim.step()
