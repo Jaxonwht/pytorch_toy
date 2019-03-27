@@ -49,13 +49,18 @@ if __name__ == "__main__":
     TRAINING = "../../data/mixed_train.txt"
     WORD2VEC_WEIGHT = "../../word2vec/model/model_state_dict.pt"
     TESTING = "../../data/democratic_only.test.en"
-    training = False
+    MODEL_FILE_PATH = "../model/checkpoint.pt"
+    training = True
+    pretrained = True
 
     if training:
         training_dataset = VAEData(filepath=TRAINING, vocab_data_file=VOCAB, max_seq_len=MAX_SEQ_LEN)
         model = VAE(embed=EMBEDDING_SIZE, encoder_hidden=ENCODER_HIDDEN_SIZE, decoder_hidden=DECODER_HIDDEN_SIZE,
                     device=my_device, embedding_weights=torch.load(WORD2VEC_WEIGHT)["embed.weight"]).to(my_device)
         optim = torch.optim.Adam(model.parameters(), lr=LEARNING_RATE)
+        if pretrained:
+            model.load_state_dict(torch.load(MODEL_FILE_PATH)["model_state_dict"])
+            optim.load_state_dict(torch.load(MODEL_FILE_PATH)["optimizer_state_dict"])
         loss_fn = nn.CrossEntropyLoss(ignore_index=-1)
         total_loss = torch.zeros(1).to(my_device)
         for epoch in range(EPOCHS):
@@ -71,7 +76,7 @@ if __name__ == "__main__":
                 reconstruction_loss = torch.zeros(1, device=my_device)
                 for token_index in range(1, lengths[0]):
                     reconstruction_loss += loss_fn(out[:, :, token_index], padded_input[:, token_index])
-                total_loss = kl_loss + reconstruction_loss
+                total_loss = kl_loss / 100000 + reconstruction_loss
                 optim.zero_grad()
                 total_loss.backward()
                 optim.step()
