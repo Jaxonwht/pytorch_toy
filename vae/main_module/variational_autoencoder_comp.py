@@ -41,7 +41,7 @@ if __name__ == "__main__":
     MAX_SEQ_LEN = 50
     ENCODER_HIDDEN_SIZE = 200
     DECODER_HIDDEN_SIZE = 200
-    LEARNING_RATE = 1e-3
+    LEARNING_RATE = 1e-1
     EPOCHS = 300
     EMBEDDING_SIZE = 500
     VOCAB = "../../data/classtrain.txt"
@@ -57,7 +57,7 @@ if __name__ == "__main__":
     optim = torch.optim.Adam(model.parameters(), lr=LEARNING_RATE)
     if pretrained:
         model.load_state_dict(torch.load(MODEL_FILE_PATH)["model_state_dict"])
-        optim.load_state_dict(torch.load(MODEL_FILE_PATH)["optimizer_state_dict"])
+        # optim.load_state_dict(torch.load(MODEL_FILE_PATH)["optimizer_state_dict"])
     loss_fn = nn.CrossEntropyLoss(ignore_index=-1)
     for epoch in range(EPOCHS):
         for batch in range(len(training_dataset) // BATCH_SIZE):
