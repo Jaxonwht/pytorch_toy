@@ -54,7 +54,8 @@ class Encoder(nn.Module):
             input = [self.embedding(token) for token in x]
             x = pack_sequence(input)
             out, hidden = self.mu(x)
-            out = pad_packed_sequence(out, batch_first=True, total_length=lengths[0])
+            out, _ = pad_packed_sequence(out, batch_first=True, total_length=lengths[0])
+            hidden = torch.cat((hidden[0], hidden[1]), dim=1)
             return out, hidden, torch.zeros(1)
 
     def sample(self, mu, logvar):

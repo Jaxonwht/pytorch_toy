@@ -42,7 +42,7 @@ if __name__ == "__main__":
     MAX_SEQ_LEN = 50
     ENCODER_HIDDEN_SIZE = 200
     DECODER_HIDDEN_SIZE = 200
-    LEARNING_RATE = 1e-1
+    LEARNING_RATE = 1e-2
     EPOCHS = 300
     EMBEDDING_SIZE = 500
     VOCAB = "../../data/classtrain.txt"

@@ -58,7 +58,9 @@ class Encoder(nn.Module):
                 input[seq, :lengths[seq], :] = x[seq]
             x = pack_padded_sequence(input, lengths=lengths, batch_first=True)
             out, hidden = self.mu(x)
-            return pad_packed_sequence(out, batch_first=True), hidden, torch.zeros(1)
+            out, _ = pad_packed_sequence(out, batch_first=True)
+            hidden = torch.cat((hidden[0], hidden[1]), dim=1)
+            return out, hidden, Variable(torch.zeros(1).cuda(), requires_grad=False)
 
 
     def sample(self, mu, logvar):
@@ -68,7 +70,7 @@ class Encoder(nn.Module):
         :return: [embedding_dim]
         '''
         std = torch.exp(0.5 * logvar)
-        eps = Variable(torch.randn(std.size()).cuda())
+        eps = Variable(torch.randn(std.size()).cuda(), requires_grad=False)
         return mu + torch.mul(eps, std)
 
     def kl_convergence_loss(self, mu, logvar):
