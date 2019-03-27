@@ -22,12 +22,12 @@ class VAE(nn.Module):
         self.decoder = Decoder(encoder_hidden=encoder_hidden, decoder_hidden=decoder_hidden, embedding_layer=embedding,
                                device=device)
 
-    def forward(self, x, lengths, teacher_forcing_ratio=0.5):
+    def forward(self, x, lengths, teacher_forcing_ratio=0.5, variation=True):
         '''
         :param x: list of tensors, len(list) = batch, each tensor is [variable_seq_len]
         :param lengths: [batch]
         '''
-        encoder_outs, encoder_hidden, kl_loss = self.encoder(x, lengths)
+        encoder_outs, encoder_hidden, kl_loss = self.encoder(x, lengths, variation=variation)
         decoder_hidden = self.translator_activation(self.translator(encoder_hidden))
         out = self.decoder(x, decoder_hidden, encoder_outs, lengths, teacher_forcing_ratio=teacher_forcing_ratio)
         return out, kl_loss
@@ -50,8 +50,9 @@ if __name__ == "__main__":
     WORD2VEC_WEIGHT = "../../word2vec/model/model_state_dict.pt"
     TESTING = "../../data/democratic_only.test.en"
     MODEL_FILE_PATH = "../model/checkpoint.pt"
-    training = True
+    training = False
     pretrained = True
+    variation = False
 
     if training:
         training_dataset = VAEData(filepath=TRAINING, vocab_data_file=VOCAB, max_seq_len=MAX_SEQ_LEN)
@@ -68,7 +69,7 @@ if __name__ == "__main__":
                 input = [training_dataset[batch * BATCH_SIZE + i].to(my_device) for i in range(BATCH_SIZE)]
                 input.sort(key=lambda seq: len(seq), reverse=True)
                 lengths = torch.tensor([len(seq) for seq in input]).to(my_device)
-                out, kl_loss = model(input, lengths)
+                out, kl_loss = model(input, lengths, teacher_forcing_ratio=0.85, variation=variation)
                 padded_input = nn.utils.rnn.pad_sequence(input, batch_first=True, padding_value=-1).to(my_device)
                 # padded_input = [batch, max_seq_len]
                 out = out.permute(0, 2, 1)
@@ -76,7 +77,7 @@ if __name__ == "__main__":
                 reconstruction_loss = torch.zeros(1, device=my_device)
                 for token_index in range(1, lengths[0]):
                     reconstruction_loss += loss_fn(out[:, :, token_index], padded_input[:, token_index])
-                total_loss = kl_loss / 100000 + reconstruction_loss
+                total_loss = reconstruction_loss
                 optim.zero_grad()
                 total_loss.backward()
                 optim.step()
@@ -87,7 +88,7 @@ if __name__ == "__main__":
         model = VAE(embed=EMBEDDING_SIZE, encoder_hidden=ENCODER_HIDDEN_SIZE, decoder_hidden=DECODER_HIDDEN_SIZE,
                     device=my_device, vocabulary=testing_dataset.get_vocab_size()).to(my_device)
         model.load_state_dict(torch.load("../model/checkpoint.pt")["model_state_dict"])
-        input = [testing_dataset[60 + i].to(my_device) for i in range(BATCH_SIZE)]
+        input = [testing_dataset[i].to(my_device) for i in range(BATCH_SIZE)]
         input.sort(key=lambda seq : len(seq), reverse=True)
         lengths = torch.tensor([len(seq) for seq in input]).to(my_device)
         with torch.no_grad():

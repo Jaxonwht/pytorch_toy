@@ -25,12 +25,12 @@ class VAE(nn.Module):
         self.translator_activation = nn.LeakyReLU()
         self.decoder = Decoder(encoder_hidden=encoder_hidden, decoder_hidden=decoder_hidden, embedding_layer=embedding)
 
-    def forward(self, x, lengths, teacher_forcing_ratio=0.5):
+    def forward(self, x, lengths, teacher_forcing_ratio=0.5, variation=True):
         '''
         :param x: list of tensors, len(list) = batch, each tensor is [variable_seq_len]
         :param lengths: [batch]
         '''
-        encoder_outs, encoder_hidden, kl_loss = self.encoder(x, lengths)
+        encoder_outs, encoder_hidden, kl_loss = self.encoder(x, lengths, variation=variation)
         decoder_hidden = self.translator_activation(self.translator(encoder_hidden))
         out = self.decoder(x, decoder_hidden, encoder_outs, lengths, teacher_forcing_ratio=teacher_forcing_ratio)
         return out, kl_loss
@@ -49,6 +49,7 @@ if __name__ == "__main__":
     WORD2VEC_WEIGHT = "../../word2vec/model/model_state_dict.pt"
     MODEL_FILE_PATH = "../model/checkpoint.pt"
     pretrained = True
+    variation = False
 
     training_dataset = VAEData(filepath=TRAINING, vocab_data_file=VOCAB, max_seq_len=MAX_SEQ_LEN)
     model = VAE(embed=EMBEDDING_SIZE, encoder_hidden=ENCODER_HIDDEN_SIZE, decoder_hidden=DECODER_HIDDEN_SIZE,
@@ -63,7 +64,7 @@ if __name__ == "__main__":
             input = [Variable(training_dataset[batch * BATCH_SIZE + i].cuda()) for i in range(BATCH_SIZE)]
             input.sort(key=lambda seq: len(seq), reverse=True)
             lengths = [len(seq) for seq in input]
-            out, kl_loss = model(input, lengths, teacher_forcing_ratio=0.85)
+            out, kl_loss = model(input, lengths, teacher_forcing_ratio=0.85, variation=variation)
             padded_input = Variable(torch.zeros(len(lengths), lengths[0]).type(torch.LongTensor).cuda())
             # padded_input = [batch, max_seq_len]
             padded_input.fill_(-1)
