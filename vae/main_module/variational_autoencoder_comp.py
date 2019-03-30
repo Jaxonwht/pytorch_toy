@@ -41,7 +41,7 @@ if __name__ == "__main__":
     MAX_SEQ_LEN = 50
     ENCODER_HIDDEN_SIZE = 200
     DECODER_HIDDEN_SIZE = 200
-    LEARNING_RATE = 1e-2
+    LEARNING_RATE = 1e-3
     EPOCHS = 300
     EMBEDDING_SIZE = 500
     VOCAB = "../../data/classtrain.txt"
@@ -64,7 +64,7 @@ if __name__ == "__main__":
             input = [Variable(training_dataset[batch * BATCH_SIZE + i].cuda()) for i in range(BATCH_SIZE)]
             input.sort(key=lambda seq: len(seq), reverse=True)
             lengths = [len(seq) for seq in input]
-            out, kl_loss = model(input, lengths, teacher_forcing_ratio=0.85, variation=variation)
+            out, kl_loss = model(input, lengths, teacher_forcing_ratio=0.5, variation=variation)
             padded_input = Variable(torch.zeros(len(lengths), lengths[0]).type(torch.LongTensor).cuda())
             # padded_input = [batch, max_seq_len]
             padded_input.fill_(-1)
