@@ -7,13 +7,13 @@ from word2vec.data_loader.data_loader import START_OF_STRING
 
 
 class VAEData(Dataset):
-    def __init__(self, filepath, vocab_data_file, max_seq_len):
+    def __init__(self, filepath, vocab_data_file, max_seq_len, offset=1):
         super().__init__()
         self.whole_data = EmailDataset(vocab_data_file, 0)
         self.content = []
         with open(filepath) as f:
             for line in f:
-                line = line.strip().split(" ")[1:]
+                line = line.strip().split(" ")[offset:]
                 line.append(END_OF_STRING)
                 line.insert(0, START_OF_STRING)
                 if len(line) > max_seq_len:
