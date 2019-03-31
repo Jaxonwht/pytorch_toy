@@ -40,11 +40,11 @@ if __name__ == "__main__":
         my_device = torch.device("cpu")
     BATCH_SIZE = 50
     MAX_SEQ_LEN = 50
-    ENCODER_HIDDEN_SIZE = 400
-    DECODER_HIDDEN_SIZE = 400
-    LEARNING_RATE = 5e-2
+    ENCODER_HIDDEN_SIZE = 200
+    DECODER_HIDDEN_SIZE = 200
+    LEARNING_RATE = 1e-2
     EPOCHS = 300
-    EMBEDDING_SIZE = 1000
+    EMBEDDING_SIZE = 300
     VOCAB = "../../data/classtrain.txt"
     TRAINING = "../../data/mixed_train.txt"
     WORD2VEC_WEIGHT = "../../word2vec/model/model_state_dict.pt"
