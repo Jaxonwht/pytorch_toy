@@ -39,8 +39,8 @@ class VAE(nn.Module):
 if __name__ == "__main__":
     BATCH_SIZE = 50
     MAX_SEQ_LEN = 50
-    ENCODER_HIDDEN_SIZE = 200
-    DECODER_HIDDEN_SIZE = 200
+    ENCODER_HIDDEN_SIZE = 400
+    DECODER_HIDDEN_SIZE = 400
     LEARNING_RATE = 1e-2
     EPOCHS = 300
     EMBEDDING_SIZE = 300
@@ -58,7 +58,7 @@ if __name__ == "__main__":
     if pretrained:
         model.load_state_dict(torch.load(MODEL_FILE_PATH)["model_state_dict"])
         # optim.load_state_dict(torch.load(MODEL_FILE_PATH)["optimizer_state_dict"])
-    loss_fn = nn.CrossEntropyLoss(ignore_index=-1)
+    loss_fn = nn.CrossEntropyLoss(ignore_index=-1, size_average=False)
     for epoch in range(EPOCHS):
         for batch in range(len(training_dataset) // BATCH_SIZE):
             input = [Variable(training_dataset[batch * BATCH_SIZE + i].cuda()) for i in range(BATCH_SIZE)]
