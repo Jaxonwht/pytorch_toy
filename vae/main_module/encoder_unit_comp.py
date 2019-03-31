@@ -62,7 +62,6 @@ class Encoder(nn.Module):
             hidden = torch.cat((hidden[0], hidden[1]), dim=1)
             return out, hidden, Variable(torch.zeros(1).cuda(), requires_grad=False)
 
-
     def sample(self, mu, logvar):
         '''
         :param mu: [embedding_dim]

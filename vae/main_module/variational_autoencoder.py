@@ -80,7 +80,10 @@ if __name__ == "__main__":
                 optim.zero_grad()
                 total_loss.backward()
                 optim.step()
-                print("Epoch {}, Batch {}, KL Loss {}, Reconstruction Loss {}, Total Loss {}".format(epoch, batch, kl_loss.item(), reconstruction_loss.item(), total_loss.item()))
+                print("Epoch {}, Batch {}, KL Loss {}, Reconstruction Loss {}, Total Loss {}".format(epoch, batch,
+                                                                                                     kl_loss.item(),
+                                                                                                     reconstruction_loss.item(),
+                                                                                                     total_loss.item()))
     else:
         vocab_dataset = EmailDataset(VOCAB, 0)
         testing_dataset = VAEData(filepath=TESTING, vocab_data_file=VOCAB, max_seq_len=MAX_SEQ_LEN, offset=0)
@@ -88,7 +91,7 @@ if __name__ == "__main__":
                     device=my_device, vocabulary=testing_dataset.get_vocab_size()).to(my_device)
         model.load_state_dict(torch.load("../model/checkpoint.pt")["model_state_dict"])
         input = [testing_dataset[i].to(my_device) for i in range(BATCH_SIZE)]
-        input.sort(key=lambda seq : len(seq), reverse=True)
+        input.sort(key=lambda seq: len(seq), reverse=True)
         lengths = torch.tensor([len(seq) for seq in input]).to(my_device)
         with torch.no_grad():
             out, _ = model(input, lengths, teacher_forcing_ratio=0)
