@@ -7,8 +7,8 @@ class Attention(nn.Module):
     def __init__(self, encoder_hidden_dim, decoder_hidden_dim, device):
         super().__init__()
         self.device = device
-        self.attn = nn.Linear(2 * encoder_hidden_dim + decoder_hidden_dim, 2 * encoder_hidden_dim)
-        self.v = nn.Linear(2 * encoder_hidden_dim, 1)
+        self.attn = nn.Linear(2 * encoder_hidden_dim + decoder_hidden_dim, decoder_hidden_dim)
+        self.v = nn.Linear(decoder_hidden_dim, 1)
 
     def forward(self, encoder_out, hidden, lengths):
         '''
@@ -27,8 +27,8 @@ class Attention(nn.Module):
         energy = torch.zeros(encoder_out.size()[0], encoder_out.size()[1]).to(self.device)
         for batch in range(encoder_out.size()[0]):
             energy[batch, :lengths[batch].item()] = F.softmax(
-                self.v(torch.tanh(self.attn(temp[batch, : lengths[batch].item()]))), dim=0).squeeze(1)
-            # [seq_len, 2 x encoder_hidden_dim + decoder_hidden_dim] -> [seq_len, 2 x encoder_hidden_dim] -> [seq_len, 1] -> [seq_len]
+                self.v(torch.tanh(self.attn(temp[batch, : lengths[batch].item()]))).squeeze(1), dim=0)
+            # [seq_len, 2 x encoder_hidden_dim + decoder_hidden_dim] -> [seq_len, decoder_hidden_dim] -> [seq_len, 1] -> [seq_len]
         # energy = [batch, max_seq_len]
         context = torch.bmm(energy.unsqueeze(1), encoder_out).squeeze(1)
         # context = [batch, 2 x encoder_hidden_dim]

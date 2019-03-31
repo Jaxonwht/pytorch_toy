@@ -9,7 +9,7 @@ from vae.main_module.attention_unit_comp import Attention
 
 
 class Decoder(nn.Module):
-    def __init__(self, encoder_hidden, decoder_hidden, embedding_layer, leaky_relu_constant=0.1):
+    def __init__(self, encoder_hidden, decoder_hidden, embedding_layer):
         super().__init__()
         self.embedding = embedding_layer
         vocab_size = embedding_layer.weight.size()[0]
@@ -17,7 +17,6 @@ class Decoder(nn.Module):
         self.gru_cell = nn.GRUCell(input_size=embed + 2 * encoder_hidden, hidden_size=decoder_hidden)
         self.attention = Attention(encoder_hidden_dim=encoder_hidden, decoder_hidden_dim=decoder_hidden)
         self.interpret = nn.Linear(in_features=decoder_hidden, out_features=vocab_size)
-        self.token_activation = nn.LeakyReLU(leaky_relu_constant)
 
     def forward(self, input, hidden, encoder_outs, lengths, teacher_forcing_ratio=0.5):
         '''
@@ -47,7 +46,7 @@ class Decoder(nn.Module):
             modified_input = torch.cat((selected, context), dim=1)
             # modified_input = [batch, embed + 2 x encoder_hidden_dim]
             hidden = self.gru_cell(modified_input, hidden)
-            out[:, index, :] = self.token_activation(self.interpret(hidden))
+            out[:, index, :] = self.interpret(hidden)
         return out
 
 
