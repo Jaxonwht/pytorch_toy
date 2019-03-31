@@ -37,23 +37,22 @@ class VAE(nn.Module):
 
 
 if __name__ == "__main__":
-    BATCH_SIZE = 32
+    BATCH_SIZE = 50
     MAX_SEQ_LEN = 50
-    ENCODER_HIDDEN_SIZE = 200
-    DECODER_HIDDEN_SIZE = 200
-    LEARNING_RATE = 1e-3
+    ENCODER_HIDDEN_SIZE = 400
+    DECODER_HIDDEN_SIZE = 400
+    LEARNING_RATE = 5e-2
     EPOCHS = 300
-    EMBEDDING_SIZE = 500
+    EMBEDDING_SIZE = 1000
     VOCAB = "../../data/classtrain.txt"
     TRAINING = "../../data/mixed_train.txt"
     WORD2VEC_WEIGHT = "../../word2vec/model/model_state_dict.pt"
     MODEL_FILE_PATH = "../model/checkpoint.pt"
-    pretrained = True
+    pretrained = False
     variation = False
 
     training_dataset = VAEData(filepath=TRAINING, vocab_data_file=VOCAB, max_seq_len=MAX_SEQ_LEN)
-    model = VAE(embed=EMBEDDING_SIZE, encoder_hidden=ENCODER_HIDDEN_SIZE, decoder_hidden=DECODER_HIDDEN_SIZE,
-                embedding_weights=torch.load(WORD2VEC_WEIGHT)["embed.weight"]).cuda()
+    model = VAE(embed=EMBEDDING_SIZE, encoder_hidden=ENCODER_HIDDEN_SIZE, decoder_hidden=DECODER_HIDDEN_SIZE, vocabulary=training_dataset.get_vocab_size()).cuda()
     optim = torch.optim.Adam(model.parameters(), lr=LEARNING_RATE)
     if pretrained:
         model.load_state_dict(torch.load(MODEL_FILE_PATH)["model_state_dict"])
@@ -64,7 +63,7 @@ if __name__ == "__main__":
             input = [Variable(training_dataset[batch * BATCH_SIZE + i].cuda()) for i in range(BATCH_SIZE)]
             input.sort(key=lambda seq: len(seq), reverse=True)
             lengths = [len(seq) for seq in input]
-            out, kl_loss = model(input, lengths, teacher_forcing_ratio=0.5, variation=variation)
+            out, kl_loss = model(input, lengths, teacher_forcing_ratio=0.9, variation=variation)
             padded_input = Variable(torch.zeros(len(lengths), lengths[0]).type(torch.LongTensor).cuda())
             # padded_input = [batch, max_seq_len]
             padded_input.fill_(-1)

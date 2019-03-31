@@ -38,38 +38,37 @@ if __name__ == "__main__":
         my_device = torch.device("cuda")
     else:
         my_device = torch.device("cpu")
-    BATCH_SIZE = 32
+    BATCH_SIZE = 50
     MAX_SEQ_LEN = 50
-    ENCODER_HIDDEN_SIZE = 200
-    DECODER_HIDDEN_SIZE = 200
-    LEARNING_RATE = 1e-2
+    ENCODER_HIDDEN_SIZE = 400
+    DECODER_HIDDEN_SIZE = 400
+    LEARNING_RATE = 5e-2
     EPOCHS = 300
-    EMBEDDING_SIZE = 500
+    EMBEDDING_SIZE = 1000
     VOCAB = "../../data/classtrain.txt"
     TRAINING = "../../data/mixed_train.txt"
     WORD2VEC_WEIGHT = "../../word2vec/model/model_state_dict.pt"
     TESTING = "../../data/democratic_only.test.en"
     MODEL_FILE_PATH = "../model/checkpoint.pt"
-    training = False
-    pretrained = True
+    training = True
+    pretrained = False
     variation = False
 
     if training:
         training_dataset = VAEData(filepath=TRAINING, vocab_data_file=VOCAB, max_seq_len=MAX_SEQ_LEN)
         model = VAE(embed=EMBEDDING_SIZE, encoder_hidden=ENCODER_HIDDEN_SIZE, decoder_hidden=DECODER_HIDDEN_SIZE,
-                    device=my_device, embedding_weights=torch.load(WORD2VEC_WEIGHT)["embed.weight"]).to(my_device)
+                    device=my_device, vocabulary=training_dataset.get_vocab_size()).to(my_device)
         optim = torch.optim.Adam(model.parameters(), lr=LEARNING_RATE)
         if pretrained:
             model.load_state_dict(torch.load(MODEL_FILE_PATH)["model_state_dict"])
             # optim.load_state_dict(torch.load(MODEL_FILE_PATH)["optimizer_state_dict"])
         loss_fn = nn.CrossEntropyLoss(ignore_index=-1)
-        total_loss = torch.zeros(1).to(my_device)
         for epoch in range(EPOCHS):
             for batch in range(len(training_dataset) // BATCH_SIZE):
                 input = [training_dataset[batch * BATCH_SIZE + i].to(my_device) for i in range(BATCH_SIZE)]
                 input.sort(key=lambda seq: len(seq), reverse=True)
                 lengths = torch.tensor([len(seq) for seq in input]).to(my_device)
-                out, kl_loss = model(input, lengths, teacher_forcing_ratio=0, variation=variation)
+                out, kl_loss = model(input, lengths, teacher_forcing_ratio=0.9, variation=variation)
                 padded_input = nn.utils.rnn.pad_sequence(input, batch_first=True, padding_value=-1).to(my_device)
                 # padded_input = [batch, max_seq_len]
                 out = out.permute(0, 2, 1)
