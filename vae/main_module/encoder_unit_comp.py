@@ -18,7 +18,7 @@ class Encoder(nn.Module):
     def forward(self, x, lengths, variation):
         '''
         :param input: list of variable lengths of tensors, len(list) = batch_size, each entry in one element of the batch is [variable_seq_len]
-        :param lengths: [batch_size]
+        :param lengths: list, len(list) = batch_size
         :return: (out, hidden, kl_loss), out is [batch, padded_seq_len, 2 x encoder_hidden_dim], hidden is [batch, 2 x encoder_hidden_dim], kl_loss is scalar
         '''
         if variation:

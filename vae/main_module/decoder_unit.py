@@ -44,6 +44,15 @@ class Decoder(nn.Module):
             out[:, index, :] = self.interpret(hidden)
         return out
 
+    def inference(self, initial_hidden, encoder_outs, beam_width):
+        '''
+        :param initial_hidden: [1, decoder_hidden_dim]
+        :param encoder_outs: [1, seq_len, 2 x encoder_hidden_dim]
+        :param beam_width: scalar
+        :return: [some_other_seq_len]
+        '''
+        
+
 
 if __name__ == "__main__":
     if torch.cuda.is_available():

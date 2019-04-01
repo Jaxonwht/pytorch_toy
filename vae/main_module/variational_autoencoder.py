@@ -32,6 +32,19 @@ class VAE(nn.Module):
         out = self.decoder(x, decoder_hidden, encoder_outs, lengths, teacher_forcing_ratio=teacher_forcing_ratio)
         return out, kl_loss
 
+    def inference(self, input, beam_width, variation):
+        '''
+        :param input: [seq_len]
+        :param beam_width: scalar
+        :param variation: boolean
+        :return: a tensor of variable length
+        '''
+        with torch.no_grad():
+            encoder_outs, encoder_hidden, _ = self.encoder([input], torch.tensor([len(input)]), variation=variation)
+            decoder_hidden = self.translator_activation(self.translator(encoder_hidden))
+            out = self.decoder.inference(initial_hidden=decoder_hidden, encoder_outs=encoder_outs, beam_width=beam_width)
+            return out
+
 
 if __name__ == "__main__":
     if torch.cuda.is_available():
