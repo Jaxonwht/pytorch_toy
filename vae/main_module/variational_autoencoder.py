@@ -22,7 +22,7 @@ class VAE(nn.Module):
         self.decoder = Decoder(encoder_hidden=encoder_hidden, decoder_hidden=decoder_hidden, embedding_layer=embedding,
                                device=device)
 
-    def forward(self, x, lengths, teacher_forcing_ratio=0.5, variation=True):
+    def forward(self, x, lengths, teacher_forcing_ratio, variation):
         '''
         :param x: list of tensors, len(list) = batch, each tensor is [variable_seq_len]
         :param lengths: [batch]
@@ -42,7 +42,8 @@ class VAE(nn.Module):
         with torch.no_grad():
             encoder_outs, encoder_hidden, _ = self.encoder([input], torch.tensor([len(input)]), variation=variation)
             decoder_hidden = self.translator_activation(self.translator(encoder_hidden))
-            out = self.decoder.inference(initial_hidden=decoder_hidden, encoder_outs=encoder_outs, beam_width=beam_width)
+            out = self.decoder.inference(initial_hidden=decoder_hidden, encoder_outs=encoder_outs,
+                                         beam_width=beam_width)
             return out
 
 

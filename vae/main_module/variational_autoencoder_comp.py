@@ -25,7 +25,7 @@ class VAE(nn.Module):
         self.translator_activation = nn.LeakyReLU()
         self.decoder = Decoder(encoder_hidden=encoder_hidden, decoder_hidden=decoder_hidden, embedding_layer=embedding)
 
-    def forward(self, x, lengths, teacher_forcing_ratio=0.5, variation=True):
+    def forward(self, x, lengths, teacher_forcing_ratio, variation):
         '''
         :param x: list of tensors, len(list) = batch, each tensor is [variable_seq_len]
         :param lengths: [batch]

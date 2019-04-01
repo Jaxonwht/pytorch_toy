@@ -18,7 +18,7 @@ class Decoder(nn.Module):
         self.attention = Attention(encoder_hidden_dim=encoder_hidden, decoder_hidden_dim=decoder_hidden)
         self.interpret = nn.Linear(in_features=decoder_hidden, out_features=vocab_size)
 
-    def forward(self, input, hidden, encoder_outs, lengths, teacher_forcing_ratio=0.5):
+    def forward(self, input, hidden, encoder_outs, lengths, teacher_forcing_ratio):
         '''
         :param input: list, len(input) = batch. Each entry is [variable_seq_len]
         :param hidden: [batch, hidden]
