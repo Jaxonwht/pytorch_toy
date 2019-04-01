@@ -43,7 +43,7 @@ class VAE(nn.Module):
             encoder_outs, encoder_hidden, _ = self.encoder([input], torch.tensor([len(input)]), variation=variation)
             decoder_hidden = self.translator_activation(self.translator(encoder_hidden))
             out = self.decoder.inference(initial_hidden=decoder_hidden, encoder_outs=encoder_outs,
-                                         beam_width=beam_width)
+                                         beam_width=beam_width, length=torch.tensor([len(input)]))
             return out
 
 
@@ -59,6 +59,7 @@ if __name__ == "__main__":
     LEARNING_RATE = 1e-3
     EPOCHS = 300
     EMBEDDING_SIZE = 500
+    BEAM_WIDTH = 1
     VOCAB = "../../data/classtrain.txt"
     TRAINING = "../../data/mixed_train.txt"
     WORD2VEC_WEIGHT = "../../word2vec/model/model_state_dict.pt"
@@ -66,8 +67,8 @@ if __name__ == "__main__":
     PRETRAINED_MODEL_FILE_PATH = "../model/checkpoint.pt"
     MODEL_FILE_PATH = "../model/checkpoint_variation.pt"
     training = True
-    pretrained = False
-    variation = True
+    pretrained = True
+    variation = False
 
     if training:
         training_dataset = VAEData(filepath=TRAINING, vocab_data_file=VOCAB, max_seq_len=MAX_SEQ_LEN)
@@ -107,14 +108,12 @@ if __name__ == "__main__":
                     device=my_device, vocabulary=testing_dataset.get_vocab_size()).to(my_device)
         model.load_state_dict(torch.load(PRETRAINED_MODEL_FILE_PATH)["model_state_dict"])
         input = [testing_dataset[i].to(my_device) for i in range(BATCH_SIZE)]
-        input.sort(key=lambda seq: len(seq), reverse=True)
-        lengths = torch.tensor([len(seq) for seq in input]).to(my_device)
-        with torch.no_grad():
-            out, _ = model(input, lengths, teacher_forcing_ratio=0, variation=variation)
-        index_out = torch.argmax(out, dim=2)
-        for i in range(len(index_out)):
-            out = index_out[i].tolist()
-            seq = input[i].tolist()
-            print([vocab_dataset.get_token(j) for j in seq])
+        for i in range(BATCH_SIZE):
+            input = testing_dataset[i].to(my_device)
+            print("The original sequence is:")
+            print([vocab_dataset.get_token(j) for j in input.tolist()])
+            # out = model.inference(input=input, beam_width=BEAM_WIDTH, variation=False)
+            out, _ = model([input], torch.tensor([len(input)]).to(my_device), teacher_forcing_ratio=0.0, variation=variation)
+            print("The translated sequence is:")
             print([vocab_dataset.get_token(j) for j in out])
             print()
