@@ -28,8 +28,8 @@ class Encoder(nn.Module):
             for seq in range(len(lengths)):
                 input[seq, :lengths[seq], :] = x[seq]
             x = pack_padded_sequence(input, lengths=lengths, batch_first=True)
-            mu_out, mu_hidden = self.mu(x)
-            logvar_out, logvar_hidden = self.logvar(x)
+            mu_out, _ = self.mu(x)
+            logvar_out, _ = self.logvar(x)
             # out is a padded seq
             # hidden = [2, batch, encoder_hidden_dim]
             # hidden can be separated into part = hidden.view(num_layers, num_directions, batch, hidden_size)
@@ -44,12 +44,10 @@ class Encoder(nn.Module):
                 kl_loss = kl_loss.add(
                     self.kl_convergence_loss(mu_out_list[batch, :lengths[batch]],
                                              logvar_out_list[batch, :lengths[batch]]))
-            kl_loss = kl_loss.add(self.kl_convergence_loss(mu_hidden, logvar_hidden)).div(len(lengths))
-            hidden = self.sample(mu_hidden, logvar_hidden)
+            kl_loss = kl_loss.div(len(lengths))
+            hidden = out[:, -1, :]
             # out = [batch, max_seq_len, 2 x encoder_hidden_dim]
             # hidden = [2, batch, encoder_hidden_dim]
-            hidden = torch.cat((hidden[0], hidden[1]), dim=1)
-            # hidden = [batch, 2 x encoder_hidden_dim]
             return out, hidden, kl_loss
         else:
             input = Variable(torch.zeros(len(lengths), lengths[0], self.embedding.weight.size()[1]).cuda())

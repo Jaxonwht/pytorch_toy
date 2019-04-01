@@ -49,10 +49,11 @@ if __name__ == "__main__":
     TRAINING = "../../data/mixed_train.txt"
     WORD2VEC_WEIGHT = "../../word2vec/model/model_state_dict.pt"
     TESTING = "../../data/democratic_only.test.en"
-    MODEL_FILE_PATH = "../model/checkpoint.pt"
+    PRETRAINED_MODEL_FILE_PATH = "../model/checkpoint.pt"
+    MODEL_FILE_PATH = "../model/checkpoint_variation.pt"
     training = True
-    pretrained = False
-    variation = False
+    pretrained = True
+    variation = True
 
     if training:
         training_dataset = VAEData(filepath=TRAINING, vocab_data_file=VOCAB, max_seq_len=MAX_SEQ_LEN)
@@ -60,7 +61,7 @@ if __name__ == "__main__":
                     device=my_device, vocabulary=training_dataset.get_vocab_size()).to(my_device)
         optim = torch.optim.Adam(model.parameters(), lr=LEARNING_RATE)
         if pretrained:
-            model.load_state_dict(torch.load(MODEL_FILE_PATH)["model_state_dict"])
+            model.load_state_dict(torch.load(PRETRAINED_MODEL_FILE_PATH)["model_state_dict"])
             # optim.load_state_dict(torch.load(MODEL_FILE_PATH)["optimizer_state_dict"])
         loss_fn = nn.CrossEntropyLoss(ignore_index=-1, reduction="sum")
         for epoch in range(EPOCHS):
@@ -73,11 +74,11 @@ if __name__ == "__main__":
                 # padded_input = [batch, max_seq_len]
                 out = out.permute(0, 2, 1)
                 # out: [batch, max_seq_len, vocab_size] -> [batch, vocab_size, max_seq_len]
-                reconstruction_loss = loss_fn(out, padded_input)
+                reconstruction_loss = loss_fn(out, padded_input) / BATCH_SIZE
                 # reconstruction_loss = torch.zeros(1, device=my_device)
                 # for token_index in range(1, lengths[0]):
                 #     reconstruction_loss += loss_fn(out[:, :, token_index], padded_input[:, token_index])
-                total_loss = reconstruction_loss
+                total_loss = reconstruction_loss + kl_loss
                 optim.zero_grad()
                 total_loss.backward()
                 optim.step()
@@ -90,12 +91,12 @@ if __name__ == "__main__":
         testing_dataset = VAEData(filepath=TESTING, vocab_data_file=VOCAB, max_seq_len=MAX_SEQ_LEN, offset=0)
         model = VAE(embed=EMBEDDING_SIZE, encoder_hidden=ENCODER_HIDDEN_SIZE, decoder_hidden=DECODER_HIDDEN_SIZE,
                     device=my_device, vocabulary=testing_dataset.get_vocab_size()).to(my_device)
-        model.load_state_dict(torch.load("../model/checkpoint.pt")["model_state_dict"])
+        model.load_state_dict(torch.load(PRETRAINED_MODEL_FILE_PATH)["model_state_dict"])
         input = [testing_dataset[i].to(my_device) for i in range(BATCH_SIZE)]
         input.sort(key=lambda seq: len(seq), reverse=True)
         lengths = torch.tensor([len(seq) for seq in input]).to(my_device)
         with torch.no_grad():
-            out, _ = model(input, lengths, teacher_forcing_ratio=0)
+            out, _ = model(input, lengths, teacher_forcing_ratio=0, variation=variation)
         index_out = torch.argmax(out, dim=2)
         for i in range(len(index_out)):
             out = index_out[i].tolist()

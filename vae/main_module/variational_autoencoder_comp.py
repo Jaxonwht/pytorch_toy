@@ -47,16 +47,17 @@ if __name__ == "__main__":
     VOCAB = "../../data/classtrain.txt"
     TRAINING = "../../data/mixed_train.txt"
     WORD2VEC_WEIGHT = "../../word2vec/model/model_state_dict.pt"
-    MODEL_FILE_PATH = "../model/checkpoint.pt"
+    PRETRAINED_MODEL_FILE_PATH = "../model/checkpoint.pt"
+    MODEL_FILE_PATH = "../model/checkpoint_variation.pt"
     pretrained = False
-    variation = False
+    variation = True
 
     training_dataset = VAEData(filepath=TRAINING, vocab_data_file=VOCAB, max_seq_len=MAX_SEQ_LEN)
     model = VAE(embed=EMBEDDING_SIZE, encoder_hidden=ENCODER_HIDDEN_SIZE, decoder_hidden=DECODER_HIDDEN_SIZE,
                 vocabulary=training_dataset.get_vocab_size()).cuda()
     optim = torch.optim.Adam(model.parameters(), lr=LEARNING_RATE)
     if pretrained:
-        model.load_state_dict(torch.load(MODEL_FILE_PATH)["model_state_dict"])
+        model.load_state_dict(torch.load(PRETRAINED_MODEL_FILE_PATH)["model_state_dict"])
         # optim.load_state_dict(torch.load(MODEL_FILE_PATH)["optimizer_state_dict"])
     loss_fn = nn.CrossEntropyLoss(ignore_index=-1, size_average=False)
     for epoch in range(EPOCHS):
@@ -75,7 +76,7 @@ if __name__ == "__main__":
             reconstruction_loss = Variable(torch.zeros(1).cuda())
             for token_index in range(1, lengths[0]):
                 reconstruction_loss += loss_fn(out[:, :, token_index], padded_input[:, token_index])
-            total_loss = reconstruction_loss
+            total_loss = reconstruction_loss / BATCH_SIZE + kl_loss
             optim.zero_grad()
             total_loss.backward()
             optim.step()
