@@ -40,11 +40,11 @@ if __name__ == "__main__":
         my_device = torch.device("cpu")
     BATCH_SIZE = 50
     MAX_SEQ_LEN = 50
-    ENCODER_HIDDEN_SIZE = 400
-    DECODER_HIDDEN_SIZE = 400
+    ENCODER_HIDDEN_SIZE = 200
+    DECODER_HIDDEN_SIZE = 200
     LEARNING_RATE = 1e-2
     EPOCHS = 300
-    EMBEDDING_SIZE = 300
+    EMBEDDING_SIZE = 100
     VOCAB = "../../data/classtrain.txt"
     TRAINING = "../../data/mixed_train.txt"
     WORD2VEC_WEIGHT = "../../word2vec/model/model_state_dict.pt"
@@ -73,9 +73,10 @@ if __name__ == "__main__":
                 # padded_input = [batch, max_seq_len]
                 out = out.permute(0, 2, 1)
                 # out: [batch, max_seq_len, vocab_size] -> [batch, vocab_size, max_seq_len]
-                reconstruction_loss = torch.zeros(1, device=my_device)
-                for token_index in range(1, lengths[0]):
-                    reconstruction_loss += loss_fn(out[:, :, token_index], padded_input[:, token_index])
+                reconstruction_loss = loss_fn(out, padded_input)
+                # reconstruction_loss = torch.zeros(1, device=my_device)
+                # for token_index in range(1, lengths[0]):
+                #     reconstruction_loss += loss_fn(out[:, :, token_index], padded_input[:, token_index])
                 total_loss = reconstruction_loss
                 optim.zero_grad()
                 total_loss.backward()
