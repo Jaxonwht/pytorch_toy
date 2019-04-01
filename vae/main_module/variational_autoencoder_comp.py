@@ -39,11 +39,11 @@ class VAE(nn.Module):
 if __name__ == "__main__":
     BATCH_SIZE = 50
     MAX_SEQ_LEN = 50
-    ENCODER_HIDDEN_SIZE = 200
-    DECODER_HIDDEN_SIZE = 200
-    LEARNING_RATE = 1e-2
+    ENCODER_HIDDEN_SIZE = 300
+    DECODER_HIDDEN_SIZE = 300
+    LEARNING_RATE = 1e-3
     EPOCHS = 300
-    EMBEDDING_SIZE = 100
+    EMBEDDING_SIZE = 500
     VOCAB = "../../data/classtrain.txt"
     TRAINING = "../../data/mixed_train.txt"
     WORD2VEC_WEIGHT = "../../word2vec/model/model_state_dict.pt"
