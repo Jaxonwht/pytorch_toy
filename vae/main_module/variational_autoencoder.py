@@ -89,7 +89,10 @@ if __name__ == "__main__":
                 # padded_input = [batch, max_seq_len]
                 out = out.permute(0, 2, 1)
                 # out: [batch, max_seq_len, vocab_size] -> [batch, vocab_size, max_seq_len]
-                reconstruction_loss = loss_fn(out, padded_input) / BATCH_SIZE
+                reconstruction_loss = torch.zeros(1).to(my_device)
+                for i in range(1, lengths[0]):
+                    reconstruction_loss += loss_fn(out[:, :, i], padded_input[:, i])
+                reconstruction_loss = reconstruction_loss / BATCH_SIZE
                 # reconstruction_loss = torch.zeros(1, device=my_device)
                 # for token_index in range(1, lengths[0]):
                 #     reconstruction_loss += loss_fn(out[:, :, token_index], padded_input[:, token_index])
