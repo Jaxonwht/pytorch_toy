@@ -52,7 +52,7 @@ if __name__ == "__main__":
     PRETRAINED_MODEL_FILE_PATH = "../model/checkpoint.pt"
     MODEL_FILE_PATH = "../model/checkpoint_variation.pt"
     training = True
-    pretrained = True
+    pretrained = False
     variation = True
 
     if training:

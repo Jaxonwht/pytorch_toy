@@ -76,7 +76,8 @@ if __name__ == "__main__":
             reconstruction_loss = Variable(torch.zeros(1).cuda())
             for token_index in range(1, lengths[0]):
                 reconstruction_loss += loss_fn(out[:, :, token_index], padded_input[:, token_index])
-            total_loss = reconstruction_loss / BATCH_SIZE + kl_loss
+            reconstruction_loss = reconstruction_loss / BATCH_SIZE
+            total_loss = reconstruction_loss + kl_loss
             optim.zero_grad()
             total_loss.backward()
             optim.step()
