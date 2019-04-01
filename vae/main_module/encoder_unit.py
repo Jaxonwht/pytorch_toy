@@ -4,18 +4,17 @@ from torch.nn.utils.rnn import pack_padded_sequence
 from torch.nn.utils.rnn import pack_sequence
 from torch.nn.utils.rnn import pad_packed_sequence
 from torch.nn.utils.rnn import pad_sequence
-import matplotlib.pyplot as plt
 
 
 class Encoder(nn.Module):
-    def __init__(self, hidden, embedding_layer, device, num_layers=1):
+    def __init__(self, hidden, embedding_layer, device):
         super().__init__()
         self.device = device
         self.embedding = embedding_layer
         embed = embedding_layer.weight.size()[1]
-        self.mu = nn.GRU(input_size=embed, hidden_size=hidden, num_layers=num_layers,
+        self.mu = nn.GRU(input_size=embed, hidden_size=hidden, num_layers=1,
                          bidirectional=True, batch_first=True)
-        self.logvar = nn.GRU(input_size=embed, hidden_size=hidden, num_layers=num_layers, bidirectional=True,
+        self.logvar = nn.GRU(input_size=embed, hidden_size=hidden, num_layers=1, bidirectional=True,
                              batch_first=True)
 
     def forward(self, x, lengths, variation):

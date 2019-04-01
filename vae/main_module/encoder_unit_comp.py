@@ -6,19 +6,19 @@ from torch.nn.utils.rnn import pad_packed_sequence
 
 
 class Encoder(nn.Module):
-    def __init__(self, hidden, embedding_layer, num_layers=1, bidirectional=True):
+    def __init__(self, hidden, embedding_layer):
         super().__init__()
         self.embedding = embedding_layer
         embed = embedding_layer.weight.size()[1]
-        self.mu = nn.GRU(input_size=embed, hidden_size=hidden, num_layers=num_layers,
-                         bidirectional=bidirectional, batch_first=True)
-        self.logvar = nn.GRU(input_size=embed, hidden_size=hidden, num_layers=num_layers, bidirectional=bidirectional,
+        self.mu = nn.GRU(input_size=embed, hidden_size=hidden, num_layers=1,
+                         bidirectional=True, batch_first=True)
+        self.logvar = nn.GRU(input_size=embed, hidden_size=hidden, num_layers=1, bidirectional=True,
                              batch_first=True)
 
     def forward(self, x, lengths, variation):
         '''
         :param input: list of variable lengths of tensors, len(list) = batch_size, each entry in one element of the batch is [variable_seq_len]
-        :param lengths: [batch_size]
+        :param lengths: list, len(list) = batch_size
         :return: (out, hidden, kl_loss), out is [batch, padded_seq_len, 2 x encoder_hidden_dim], hidden is [batch, 2 x encoder_hidden_dim], kl_loss is scalar
         '''
         if variation:
