@@ -6,7 +6,6 @@ from torch.nn.modules.sparse import Embedding
 from vae.data_loader.data_loader import VAEData
 from vae.main_module.decoder_unit import Decoder
 from vae.main_module.encoder_unit import Encoder
-from word2vec.main_module.word_to_vec import EmailDataset
 
 
 class VAE(nn.Module):
@@ -71,7 +70,8 @@ if __name__ == "__main__":
     variation = False
 
     if training:
-        training_dataset = VAEData(filepath=TRAINING, vocab_file=VOCAB, max_seq_len=MAX_SEQ_LEN, vocab_file_offset=1, data_file_offset=1)
+        training_dataset = VAEData(filepath=TRAINING, vocab_file=VOCAB, max_seq_len=MAX_SEQ_LEN, vocab_file_offset=1,
+                                   data_file_offset=1)
         model = VAE(embed=EMBEDDING_SIZE, encoder_hidden=ENCODER_HIDDEN_SIZE, decoder_hidden=DECODER_HIDDEN_SIZE,
                     device=my_device, vocabulary=training_dataset.get_vocab_size()).to(my_device)
         optim = torch.optim.Adam(model.parameters(), lr=LEARNING_RATE)
@@ -105,7 +105,8 @@ if __name__ == "__main__":
                                                                                                      reconstruction_loss.item(),
                                                                                                      total_loss.item()))
     else:
-        testing_dataset = VAEData(filepath=TESTING, vocab_file=VOCAB, max_seq_len=MAX_SEQ_LEN, vocab_file_offset=1, data_file_offset=0)
+        testing_dataset = VAEData(filepath=TESTING, vocab_file=VOCAB, max_seq_len=MAX_SEQ_LEN, vocab_file_offset=1,
+                                  data_file_offset=0)
         model = VAE(embed=EMBEDDING_SIZE, encoder_hidden=ENCODER_HIDDEN_SIZE, decoder_hidden=DECODER_HIDDEN_SIZE,
                     device=my_device, vocabulary=testing_dataset.get_vocab_size()).to(my_device)
         if pretrained:

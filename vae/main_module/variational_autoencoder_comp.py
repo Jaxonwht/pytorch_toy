@@ -52,7 +52,8 @@ if __name__ == "__main__":
     pretrained = True
     variation = False
 
-    training_dataset = VAEData(filepath=TRAINING, vocab_file=VOCAB, max_seq_len=MAX_SEQ_LEN, vocab_file_offset=1, data_file_offset=1)
+    training_dataset = VAEData(filepath=TRAINING, vocab_file=VOCAB, max_seq_len=MAX_SEQ_LEN, vocab_file_offset=1,
+                               data_file_offset=1)
     model = VAE(embed=EMBEDDING_SIZE, encoder_hidden=ENCODER_HIDDEN_SIZE, decoder_hidden=DECODER_HIDDEN_SIZE,
                 vocabulary=training_dataset.get_vocab_size()).cuda()
     optim = torch.optim.Adam(model.parameters(), lr=LEARNING_RATE)
