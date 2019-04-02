@@ -29,6 +29,11 @@ class Classifier(nn.Module):
         return self.fc2(self.activation(self.fc1(features.flatten(1))))
 
 
+    def untrain(self):
+        for param in self.parameters():
+            param.requires_grad = False
+
+
 if __name__ == "__main__":
     if torch.cuda.is_available():
         my_device = torch.device("cuda")
