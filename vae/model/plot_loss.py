@@ -1,5 +1,4 @@
 import matplotlib.pyplot as plt
-import numpy as np
 
 with open("slurm-51214818.out") as f:
     i = 0
