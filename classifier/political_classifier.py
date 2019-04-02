@@ -1,7 +1,7 @@
 import torch
 import torch.nn as nn
-from torch.optim import Adam
 import torch.nn.functional as F
+from torch.optim import Adam
 
 from vae.data_loader.data_loader import VAEData
 
@@ -27,6 +27,10 @@ class Classifier(nn.Module):
         # hidden = [batch, 2 x num_layers, rnn_hidden_dim]
         features = self.activation(self.conv3(self.activation(self.conv2(self.activation(self.conv1(hidden))))))
         return self.fc2(self.activation(self.fc1(features.flatten(1))))
+
+    def untrain(self):
+        for param in self.parameters():
+            param.requires_grad = False
 
 
 if __name__ == "__main__":
@@ -89,7 +93,8 @@ if __name__ == "__main__":
                            mid_hidden_dim=MID_HIDDEN, class_number=2).to(my_device)
         model.eval()
         if pretrained:
-            model.load_state_dict(torch.load(PRETRAINED_MODEL_FILE_PATH, map_location=lambda storage, loc: storage)["model_state_dict"])
+            model.load_state_dict(
+                torch.load(PRETRAINED_MODEL_FILE_PATH, map_location=lambda storage, loc: storage)["model_state_dict"])
         for e in range(EPOCHS):
             for batch in range(len(training_data) // BATCH_SIZE):
                 input = []
@@ -108,4 +113,3 @@ if __name__ == "__main__":
                 pack = nn.utils.rnn.pack_sequence(input).to(my_device)
                 scores = model(pack)
                 print(F.softmax(scores, dim=1))
-

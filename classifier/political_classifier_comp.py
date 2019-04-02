@@ -31,6 +31,10 @@ class Classifier(nn.Module):
         features = self.activation(self.conv3(self.activation(self.conv2(self.activation(self.conv1(hidden))))))
         return self.fc2(self.activation(self.fc1(features.view(len(features), -1))))
 
+    def untrain(self):
+        for param in self.parameters():
+            param.requires_grad = False
+
 
 if __name__ == "__main__":
     BATCH_SIZE = 50
