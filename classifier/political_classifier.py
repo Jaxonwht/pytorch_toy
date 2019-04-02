@@ -43,7 +43,7 @@ if __name__ == "__main__":
     RNN_LAYERS = 2
     VOCAB = "../data/classtrain.txt"
     TRAINING = "../data/mixed_train.txt"
-    TESTING = "../data/democratic_only.test.en"
+    TESTING = "../data/democratic_only.dev.en"
     PRETRAINED_MODEL_FILE_PATH = "model/checkpoint.pt"
     MODEL_FILE_PATH = "model/checkpoint.pt"
     pretrained = True
@@ -83,13 +83,13 @@ if __name__ == "__main__":
                 if batch % 10 == 0:
                     print("Epoch {}, Batch {}, Loss {}".format(e, batch, loss.item()))
     else:
-        training_data = VAEData(filepath=TRAINING, vocab_file=VOCAB, max_seq_len=MAX_SEQ_LEN, data_file_offset=1,
+        training_data = VAEData(filepath=TESTING, vocab_file=VOCAB, max_seq_len=MAX_SEQ_LEN, data_file_offset=1,
                                 vocab_file_offset=1)
         model = Classifier(vocab_size=training_data.get_vocab_size(), rnn_hidden_dim=RNN_HIDDEN_DIM, rnn_layers=2,
                            mid_hidden_dim=MID_HIDDEN, class_number=2).to(my_device)
         model.eval()
         if pretrained:
-            model.load_state_dict(torch.load(PRETRAINED_MODEL_FILE_PATH)["model_state_dict"])
+            model.load_state_dict(torch.load(PRETRAINED_MODEL_FILE_PATH, map_location=lambda storage, loc: storage)["model_state_dict"])
         for e in range(EPOCHS):
             for batch in range(len(training_data) // BATCH_SIZE):
                 input = []
