@@ -73,7 +73,7 @@ if __name__ == "__main__":
                 # for token_index in range(1, lengths[0]):
                 #     reconstruction_loss += loss_fn(out[:, :, token_index], padded_input[:, token_index])
                 total_loss = RECONSTRUCTION_COEFFICIENT * reconstruction_loss + (
-                            1 - RECONSTRUCTION_COEFFICIENT) * style_loss + kl_loss
+                        1 - RECONSTRUCTION_COEFFICIENT) * style_loss + kl_loss
                 optim.zero_grad()
                 total_loss.backward()
                 optim.step()

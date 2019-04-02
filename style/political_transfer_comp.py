@@ -69,11 +69,13 @@ if __name__ == "__main__":
                 reconstruction_loss += loss_fn(out[:, :, token_index], padded_input[:, token_index])
             reconstruction_loss = reconstruction_loss / BATCH_SIZE
             total_loss = RECONSTRUCTION_COEFFICIENT * reconstruction_loss + (
-                        1 - RECONSTRUCTION_COEFFICIENT) * style_loss + kl_loss
+                    1 - RECONSTRUCTION_COEFFICIENT) * style_loss + kl_loss
             optim.zero_grad()
             total_loss.backward()
             optim.step()
-            print("Epoch {}, Batch {}, KL Loss {}, Reconstruction Loss {}, Style Loss {}, Total Loss {}".format(epoch,
+            if batch % 10 == 0:
+                print(
+                    "Epoch {}, Batch {}, KL Loss {}, Reconstruction Loss {}, Style Loss {}, Total Loss {}".format(epoch,
                                                                                                                   batch,
                                                                                                                   kl_loss.data[
                                                                                                                       0],
