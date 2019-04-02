@@ -73,9 +73,7 @@ if __name__ == "__main__":
             optim.zero_grad()
             total_loss.backward()
             optim.step()
-            if batch % 10 == 0:
-                print(
-                    "Epoch {}, Batch {}, KL Loss {}, Reconstruction Loss {}, Style Loss {}, Total Loss {}".format(epoch,
+            print("Epoch {}, Batch {}, KL Loss {}, Reconstruction Loss {}, Style Loss {}, Total Loss {}".format(epoch,
                                                                                                                   batch,
                                                                                                                   kl_loss.data[
                                                                                                                       0],
