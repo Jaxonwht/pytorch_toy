@@ -7,7 +7,7 @@ from word2vec.data_loader.data_loader import START_OF_STRING
 
 
 class VAEData(Dataset):
-    def __init__(self, filepath, vocab_data_file, max_seq_len, offset=1):
+    def __init__(self, filepath, vocab_data_file, max_seq_len, offset):
         super().__init__()
         self.whole_data = EmailDataset(vocab_data_file, 0)
         self.content = []

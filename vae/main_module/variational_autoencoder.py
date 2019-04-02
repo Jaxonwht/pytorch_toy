@@ -71,7 +71,7 @@ if __name__ == "__main__":
     variation = False
 
     if training:
-        training_dataset = VAEData(filepath=TRAINING, vocab_data_file=VOCAB, max_seq_len=MAX_SEQ_LEN)
+        training_dataset = VAEData(filepath=TRAINING, vocab_data_file=VOCAB, max_seq_len=MAX_SEQ_LEN, offset=1)
         model = VAE(embed=EMBEDDING_SIZE, encoder_hidden=ENCODER_HIDDEN_SIZE, decoder_hidden=DECODER_HIDDEN_SIZE,
                     device=my_device, vocabulary=training_dataset.get_vocab_size()).to(my_device)
         optim = torch.optim.Adam(model.parameters(), lr=LEARNING_RATE)
