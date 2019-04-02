@@ -15,11 +15,11 @@ class Classifier(nn.Module):
         self.encoder = nn.GRU(input_size=vocab_size, hidden_size=rnn_hidden_dim, bidirectional=True,
                               num_layers=rnn_layers, batch_first=True)
         self.conv1 = nn.Conv1d(in_channels=rnn_layers * 2, out_channels=10, kernel_size=rnn_hidden_dim // 5)
-        self.conv2 = nn.Conv1d(in_channels=10, out_channels=50, kernel_size=rnn_hidden_dim // 10)
-        self.conv3 = nn.Conv1d(in_channels=50, out_channels=200, kernel_size=rnn_hidden_dim // 100)
+        self.conv2 = nn.Conv1d(in_channels=10, out_channels=20, kernel_size=rnn_hidden_dim // 10)
+        self.conv3 = nn.Conv1d(in_channels=20, out_channels=50, kernel_size=rnn_hidden_dim // 100)
         self.activation = nn.LeakyReLU()
         self.fc1 = nn.Linear(
-            in_features=(rnn_hidden_dim - rnn_hidden_dim // 5 - rnn_hidden_dim // 10 - rnn_hidden_dim // 100 + 3) * 200,
+            in_features=(rnn_hidden_dim - rnn_hidden_dim // 5 - rnn_hidden_dim // 10 - rnn_hidden_dim // 100 + 3) * 50,
             out_features=mid_hidden_dim)
         self.fc2 = nn.Linear(in_features=mid_hidden_dim, out_features=class_number)
 
@@ -33,13 +33,9 @@ class Classifier(nn.Module):
 
 
 if __name__ == "__main__":
-    if torch.cuda.is_available():
-        my_device = torch.cuda.device("cuda")
-    else:
-        my_device = torch.cuda.device("cpu")
     BATCH_SIZE = 50
     MAX_SEQ_LEN = 50
-    RNN_HIDDEN_DIM = 300
+    RNN_HIDDEN_DIM = 150
     LEARNING_RATE = 1e-2
     EPOCHS = 300
     MID_HIDDEN = 50
