@@ -59,7 +59,7 @@ if __name__ == "__main__":
     LEARNING_RATE = 1e-3
     EPOCHS = 300
     EMBEDDING_SIZE = 500
-    BEAM_WIDTH = 1
+    BEAM_WIDTH = 3
     VOCAB = "../../data/classtrain.txt"
     TRAINING = "../../data/mixed_train.txt"
     WORD2VEC_WEIGHT = "../../word2vec/model/model_state_dict.pt"
@@ -118,5 +118,5 @@ if __name__ == "__main__":
             print([vocab_dataset.get_token(j) for j in input.tolist()])
             out = model.inference(input=input, beam_width=BEAM_WIDTH, variation=False)
             print("The translated sequence is:")
-            print([vocab_dataset.get_token(j) for j in out])
+            print([vocab_dataset.get_token(j.item()) for j in out])
             print()
