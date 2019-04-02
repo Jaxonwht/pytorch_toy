@@ -43,7 +43,7 @@ class VAE(nn.Module):
             encoder_outs, encoder_hidden, _ = self.encoder([input], torch.tensor([len(input)]), variation=variation)
             decoder_hidden = self.translator_activation(self.translator(encoder_hidden))
             out = self.decoder.inference(initial_hidden=decoder_hidden, encoder_outs=encoder_outs,
-                                         beam_width=beam_width)
+                                         beam_width=beam_width, length=torch.tensor([len(input)]))
             return out
 
 
@@ -59,15 +59,16 @@ if __name__ == "__main__":
     LEARNING_RATE = 1e-3
     EPOCHS = 300
     EMBEDDING_SIZE = 500
+    BEAM_WIDTH = 1
     VOCAB = "../../data/classtrain.txt"
     TRAINING = "../../data/mixed_train.txt"
     WORD2VEC_WEIGHT = "../../word2vec/model/model_state_dict.pt"
     TESTING = "../../data/democratic_only.test.en"
     PRETRAINED_MODEL_FILE_PATH = "../model/checkpoint.pt"
     MODEL_FILE_PATH = "../model/checkpoint_variation.pt"
-    training = True
-    pretrained = False
-    variation = True
+    training = False
+    pretrained = True
+    variation = False
 
     if training:
         training_dataset = VAEData(filepath=TRAINING, vocab_data_file=VOCAB, max_seq_len=MAX_SEQ_LEN)
@@ -88,7 +89,10 @@ if __name__ == "__main__":
                 # padded_input = [batch, max_seq_len]
                 out = out.permute(0, 2, 1)
                 # out: [batch, max_seq_len, vocab_size] -> [batch, vocab_size, max_seq_len]
-                reconstruction_loss = loss_fn(out, padded_input) / BATCH_SIZE
+                reconstruction_loss = torch.zeros(1).to(my_device)
+                for i in range(1, lengths[0]):
+                    reconstruction_loss += loss_fn(out[:, :, i], padded_input[:, i])
+                reconstruction_loss = reconstruction_loss / BATCH_SIZE
                 # reconstruction_loss = torch.zeros(1, device=my_device)
                 # for token_index in range(1, lengths[0]):
                 #     reconstruction_loss += loss_fn(out[:, :, token_index], padded_input[:, token_index])
@@ -105,16 +109,14 @@ if __name__ == "__main__":
         testing_dataset = VAEData(filepath=TESTING, vocab_data_file=VOCAB, max_seq_len=MAX_SEQ_LEN, offset=0)
         model = VAE(embed=EMBEDDING_SIZE, encoder_hidden=ENCODER_HIDDEN_SIZE, decoder_hidden=DECODER_HIDDEN_SIZE,
                     device=my_device, vocabulary=testing_dataset.get_vocab_size()).to(my_device)
-        model.load_state_dict(torch.load(PRETRAINED_MODEL_FILE_PATH)["model_state_dict"])
+        if pretrained:
+            model.load_state_dict(torch.load(PRETRAINED_MODEL_FILE_PATH)["model_state_dict"])
         input = [testing_dataset[i].to(my_device) for i in range(BATCH_SIZE)]
-        input.sort(key=lambda seq: len(seq), reverse=True)
-        lengths = torch.tensor([len(seq) for seq in input]).to(my_device)
-        with torch.no_grad():
-            out, _ = model(input, lengths, teacher_forcing_ratio=0, variation=variation)
-        index_out = torch.argmax(out, dim=2)
-        for i in range(len(index_out)):
-            out = index_out[i].tolist()
-            seq = input[i].tolist()
-            print([vocab_dataset.get_token(j) for j in seq])
+        for i in range(BATCH_SIZE):
+            input = testing_dataset[i + 20].to(my_device)
+            print("The original sequence is:")
+            print([vocab_dataset.get_token(j) for j in input.tolist()])
+            out = model.inference(input=input, beam_width=BEAM_WIDTH, variation=False)
+            print("The translated sequence is:")
             print([vocab_dataset.get_token(j) for j in out])
             print()

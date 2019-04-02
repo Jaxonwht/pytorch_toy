@@ -49,8 +49,8 @@ if __name__ == "__main__":
     WORD2VEC_WEIGHT = "../../word2vec/model/model_state_dict.pt"
     PRETRAINED_MODEL_FILE_PATH = "../model/checkpoint.pt"
     MODEL_FILE_PATH = "../model/checkpoint_variation.pt"
-    pretrained = False
-    variation = True
+    pretrained = True
+    variation = False
 
     training_dataset = VAEData(filepath=TRAINING, vocab_data_file=VOCAB, max_seq_len=MAX_SEQ_LEN)
     model = VAE(embed=EMBEDDING_SIZE, encoder_hidden=ENCODER_HIDDEN_SIZE, decoder_hidden=DECODER_HIDDEN_SIZE,
