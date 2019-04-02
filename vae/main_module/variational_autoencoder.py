@@ -66,7 +66,7 @@ if __name__ == "__main__":
     TESTING = "../../data/democratic_only.test.en"
     PRETRAINED_MODEL_FILE_PATH = "../model/checkpoint.pt"
     MODEL_FILE_PATH = "../model/checkpoint_variation.pt"
-    training = True
+    training = False
     pretrained = True
     variation = False
 
@@ -109,14 +109,14 @@ if __name__ == "__main__":
         testing_dataset = VAEData(filepath=TESTING, vocab_data_file=VOCAB, max_seq_len=MAX_SEQ_LEN, offset=0)
         model = VAE(embed=EMBEDDING_SIZE, encoder_hidden=ENCODER_HIDDEN_SIZE, decoder_hidden=DECODER_HIDDEN_SIZE,
                     device=my_device, vocabulary=testing_dataset.get_vocab_size()).to(my_device)
-        model.load_state_dict(torch.load(PRETRAINED_MODEL_FILE_PATH)["model_state_dict"])
+        if pretrained:
+            model.load_state_dict(torch.load(PRETRAINED_MODEL_FILE_PATH)["model_state_dict"])
         input = [testing_dataset[i].to(my_device) for i in range(BATCH_SIZE)]
         for i in range(BATCH_SIZE):
-            input = testing_dataset[i].to(my_device)
+            input = testing_dataset[i + 20].to(my_device)
             print("The original sequence is:")
             print([vocab_dataset.get_token(j) for j in input.tolist()])
-            # out = model.inference(input=input, beam_width=BEAM_WIDTH, variation=False)
-            out, _ = model([input], torch.tensor([len(input)]).to(my_device), teacher_forcing_ratio=0.0, variation=variation)
+            out = model.inference(input=input, beam_width=BEAM_WIDTH, variation=False)
             print("The translated sequence is:")
             print([vocab_dataset.get_token(j) for j in out])
             print()

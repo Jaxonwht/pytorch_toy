@@ -44,13 +44,58 @@ class Decoder(nn.Module):
             out[:, index, :] = self.interpret(hidden)
         return out
 
-    def inference(self, initial_hidden, encoder_outs, beam_width):
+    def inference(self, initial_hidden, encoder_outs, beam_width, length):
         '''
         :param initial_hidden: [1, decoder_hidden_dim]
         :param encoder_outs: [1, seq_len, 2 x encoder_hidden_dim]
         :param beam_width: scalar
+        :param length: [1]
         :return: [some_other_seq_len]
         '''
+        logsoftmax = nn.LogSoftmax(dim=1)
+        context = self.attention(encoder_outs, initial_hidden, length)
+        modified_input = torch.cat((self.embedding(torch.tensor([0]).to(self.device)), context), dim=1)
+        hidden = self.gru_cell(modified_input, initial_hidden)
+        out = logsoftmax(self.interpret(hidden)).squeeze(0)
+        vocab_size = len(out)
+        topk, indices = torch.topk(out, beam_width)
+        tokens_seq = []
+        for i in range(beam_width):
+            tokens_seq.append([torch.tensor([0]).to(self.device), indices[i]])
+        # tokens_seq is a list, len(list) = beam_width
+        hidden_seq = hidden.repeat(beam_width, 1)
+        # hidden_seq = [beam_width, decoder_hidden_dim]
+        logprob_seq = topk
+        # logprob_seq = [beam_width]
+        encoder_outs = encoder_outs.repeat(beam_width, 1, 1)
+        # encoder_outs = [beam_width, seq_len, 2 x encoder_hidden_dim]
+        length = length.repeat(beam_width)
+        while True:
+            print(logprob_seq)
+            print(tokens_seq)
+            if indices[0].item() == 1:
+                return tokens_seq[0]
+            context = self.attention(encoder_outs, hidden_seq, length)
+            modified_input = torch.cat((self.embedding(indices), context), dim=1)
+            # modified_input = [beam_width, embedding + 2 x encoder_hidden_dim]
+            hidden = self.gru_cell(modified_input, hidden_seq)
+            # hidden = [beam_width, decoder_hidden_dim]
+            out = logsoftmax(self.interpret(hidden))
+            # out = [beam_width, vocab_size]
+            out += logprob_seq.unsqueeze(1).repeat(1, vocab_size)
+            out = out.flatten()
+            logprob_seq, indices = torch.topk(out, beam_width)
+            beam_chosen = indices // vocab_size
+            indices = indices % vocab_size
+            temp_seq = []
+            temp_hidden = torch.zeros_like(hidden_seq).to(self.device)
+            for i in range(beam_width):
+                seq = tokens_seq[beam_chosen[i].item()][:]
+                seq.append(indices[i])
+                temp_seq.append(seq)
+                temp_hidden[i] = hidden_seq[beam_chosen[i].item()]
+            hidden_seq = temp_hidden
+            tokens_seq = temp_seq
 
 
 if __name__ == "__main__":
