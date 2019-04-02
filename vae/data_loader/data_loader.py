@@ -10,6 +10,7 @@ class VAEData(Dataset):
         wordlists = [line.strip().split(" ")[vocab_file_offset:] for line in open(vocab_file)]
         self.index_dict = {0: START_OF_STRING, 1: END_OF_STRING}
         self.word_dict = {START_OF_STRING: 0, END_OF_STRING: 1}
+        self.tag = []
         index = 2
         for wordseq in wordlists:
             for word in wordseq:
@@ -20,6 +21,10 @@ class VAEData(Dataset):
         self.content = []
         with open(filepath) as f:
             for line in f:
+                if line.startswith("d"):
+                    tag = 0
+                else:
+                    tag = 1
                 line = line.strip().split(" ")[data_file_offset:]
                 line.append(END_OF_STRING)
                 line.insert(0, START_OF_STRING)
@@ -34,9 +39,13 @@ class VAEData(Dataset):
                     line[index] = num
                 if add:
                     self.content.append(line)
+                    self.tag.append(tag)
 
     def __getitem__(self, item):
         return torch.tensor(self.content[item])
+
+    def get_tag(self, index):
+        return self.tag[index]
 
     def __len__(self):
         return len(self.content)

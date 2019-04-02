@@ -47,12 +47,13 @@ if __name__ == "__main__":
     VOCAB = "../../data/classtrain.txt"
     TRAINING = "../../data/mixed_train.txt"
     WORD2VEC_WEIGHT = "../../word2vec/model/model_state_dict.pt"
-    PRETRAINED_MODEL_FILE_PATH = "../model/checkpoint.pt"
+    PRETRAINED_MODEL_FILE_PATH = "../model/checkpoint_variation.pt"
     MODEL_FILE_PATH = "../model/checkpoint_variation.pt"
-    pretrained = True
-    variation = False
+    pretrained = False
+    variation = True
 
-    training_dataset = VAEData(filepath=TRAINING, vocab_file=VOCAB, max_seq_len=MAX_SEQ_LEN, vocab_file_offset=1, data_file_offset=1)
+    training_dataset = VAEData(filepath=TRAINING, vocab_file=VOCAB, max_seq_len=MAX_SEQ_LEN, vocab_file_offset=1,
+                               data_file_offset=1)
     model = VAE(embed=EMBEDDING_SIZE, encoder_hidden=ENCODER_HIDDEN_SIZE, decoder_hidden=DECODER_HIDDEN_SIZE,
                 vocabulary=training_dataset.get_vocab_size()).cuda()
     optim = torch.optim.Adam(model.parameters(), lr=LEARNING_RATE)

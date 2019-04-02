@@ -1,0 +1,86 @@
+import torch
+import torch.nn as nn
+from torch.autograd import Variable
+from torch.optim import Adam
+
+from vae.data_loader.data_loader_comp import VAEData
+
+
+class Classifier(nn.Module):
+    def __init__(self, vocab_size, rnn_hidden_dim, rnn_layers, mid_hidden_dim, class_number):
+        super().__init__()
+        self.encoder = nn.GRU(input_size=vocab_size, hidden_size=rnn_hidden_dim, bidirectional=True,
+                              num_layers=rnn_layers, batch_first=True)
+        self.conv1 = nn.Conv1d(in_channels=rnn_layers * 2, out_channels=10, kernel_size=rnn_hidden_dim // 5)
+        self.conv2 = nn.Conv1d(in_channels=10, out_channels=50, kernel_size=rnn_hidden_dim // 10)
+        self.conv3 = nn.Conv1d(in_channels=50, out_channels=200, kernel_size=rnn_hidden_dim // 100)
+        self.activation = nn.LeakyReLU()
+        self.fc1 = nn.Linear(
+            in_features=(rnn_hidden_dim - rnn_hidden_dim // 5 - rnn_hidden_dim // 10 - rnn_hidden_dim // 100 + 3) * 200,
+            out_features=mid_hidden_dim)
+        self.fc2 = nn.Linear(in_features=mid_hidden_dim, out_features=class_number)
+
+    def forward(self, *input):
+        _, hidden = self.encoder(*input)
+        # hidden = [2 x num_layers, batch, rnn_hidden_dim]
+        hidden = hidden.permute(1, 0, 2)
+        # hidden = [batch, 2 x num_layers, rnn_hidden_dim]
+        features = self.activation(self.conv3(self.activation(self.conv2(self.activation(self.conv1(hidden))))))
+        return self.fc2(self.activation(self.fc1(features.view(len(features), -1))))
+
+
+if __name__ == "__main__":
+    if torch.cuda.is_available():
+        my_device = torch.cuda.device("cuda")
+    else:
+        my_device = torch.cuda.device("cpu")
+    BATCH_SIZE = 50
+    MAX_SEQ_LEN = 50
+    RNN_HIDDEN_DIM = 300
+    LEARNING_RATE = 1e-2
+    EPOCHS = 300
+    MID_HIDDEN = 50
+    RNN_LAYERS = 2
+    VOCAB = "../data/classtrain.txt"
+    TRAINING = "../data/mixed_train.txt"
+    TESTING = "../data/democratic_only.test.en"
+    PRETRAINED_MODEL_FILE_PATH = "model/checkpoint.pt"
+    MODEL_FILE_PATH = "model/checkpoint.pt"
+    pretrained = False
+
+    training_data = VAEData(filepath=TRAINING, vocab_file=VOCAB, max_seq_len=MAX_SEQ_LEN, data_file_offset=1,
+                            vocab_file_offset=1)
+    model = Classifier(vocab_size=training_data.get_vocab_size(), rnn_hidden_dim=RNN_HIDDEN_DIM, rnn_layers=2,
+                       mid_hidden_dim=MID_HIDDEN, class_number=2).cuda()
+    optim = Adam(model.parameters(), lr=LEARNING_RATE)
+    if pretrained:
+        model.load_state_dict(torch.load(PRETRAINED_MODEL_FILE_PATH)["model_state_dict"])
+        optim.load_state_dict(torch.load(PRETRAINED_MODEL_FILE_PATH)["optimizer_state_dict"])
+    loss_fn = nn.CrossEntropyLoss()
+    for e in range(EPOCHS):
+        for batch in range(len(training_data) // BATCH_SIZE):
+            input = [(training_data[batch * BATCH_SIZE + i].cuda(), training_data.get_tag(batch * BATCH_SIZE + i)) for i
+                     in range(BATCH_SIZE)]
+            input.sort(key=lambda x: len(x[0]), reverse=True)
+            lengths = [len(x[0]) for x in input]
+            filler = torch.zeros(BATCH_SIZE, len(input[0][0]), training_data.get_vocab_size()).cuda()
+            target = []
+            for i in range(BATCH_SIZE):
+                filler[i][:lengths[i]].scatter_(1, input[i][0].unsqueeze(1), 1.0)
+                target.append(input[i][1])
+            target = Variable(torch.LongTensor(target).cuda(), requires_grad=False)
+            input.sort(key=lambda seq: len(seq), reverse=True)
+            pack = nn.utils.rnn.pack_padded_sequence(Variable(filler, requires_grad=False), lengths, batch_first=True)
+            scores = model(pack)
+            loss = loss_fn(scores, target)
+            optim.zero_grad()
+            loss.backward()
+            optim.step()
+            if batch % 10 == 0:
+                print("Epoch {}, Batch {}, Loss {}".format(e, batch, loss.data[0]))
+        print("Saving checkpoints...")
+        torch.save(
+            {"Epoch": e,
+             "Loss": loss.data[0],
+             "model_state_dict": model.state_dict(),
+             "optimizer_state_dict": optim.state_dict()}, MODEL_FILE_PATH)
