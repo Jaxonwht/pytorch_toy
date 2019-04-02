@@ -71,10 +71,8 @@ class Decoder(nn.Module):
         # encoder_outs = [beam_width, seq_len, 2 x encoder_hidden_dim]
         length = length.repeat(beam_width)
         while True:
-            print(logprob_seq)
-            print(tokens_seq)
             if indices[0].item() == 1:
-                return tokens_seq[0]
+                return torch.tensor([j.item() for j in tokens_seq[0]])
             context = self.attention(encoder_outs, hidden_seq, length)
             modified_input = torch.cat((self.embedding(indices), context), dim=1)
             # modified_input = [beam_width, embedding + 2 x encoder_hidden_dim]
@@ -88,13 +86,11 @@ class Decoder(nn.Module):
             beam_chosen = indices // vocab_size
             indices = indices % vocab_size
             temp_seq = []
-            temp_hidden = torch.zeros_like(hidden_seq).to(self.device)
             for i in range(beam_width):
                 seq = tokens_seq[beam_chosen[i].item()][:]
                 seq.append(indices[i])
                 temp_seq.append(seq)
-                temp_hidden[i] = hidden_seq[beam_chosen[i].item()]
-            hidden_seq = temp_hidden
+                hidden_seq[i] = hidden[beam_chosen[i].item()]
             tokens_seq = temp_seq
 
 
