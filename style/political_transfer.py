@@ -84,6 +84,13 @@ if __name__ == "__main__":
                                                                                                                   reconstruction_loss.item(),
                                                                                                                   style_loss.item(),
                                                                                                                   total_loss.item()))
+            print("Saving checkpoints...")
+            torch.save(
+                {"Epoch": epoch, "KL Loss": kl_loss.data[0], "Reconstruction Loss": reconstruction_loss.data[0],
+                 "Style Loss": style_loss.data[0],
+                 "Total Loss": total_loss.data[0],
+                 "model_state_dict": model.state_dict(),
+                 "optimizer_state_dict": optim.state_dict()}, MODEL_FILE_PATH)
     else:
         testing_dataset = VAEData(filepath=TESTING, vocab_file=VOCAB, max_seq_len=MAX_SEQ_LEN, vocab_file_offset=1,
                                   data_file_offset=0)
