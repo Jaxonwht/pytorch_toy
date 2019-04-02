@@ -1,6 +1,7 @@
 import matplotlib.pyplot as plt
+import numpy as np
 
-with open("slurm-51200077.out") as f:
+with open("slurm-51214818.out") as f:
     i = 0
     for line in f:
         if line.startswith("S"):
