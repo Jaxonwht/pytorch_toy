@@ -71,7 +71,7 @@ if __name__ == "__main__":
     variation = False
 
     if training:
-        training_dataset = VAEData(filepath=TRAINING, vocab_data_file=VOCAB, max_seq_len=MAX_SEQ_LEN, offset=1)
+        training_dataset = VAEData(filepath=TRAINING, vocab_file=VOCAB, max_seq_len=MAX_SEQ_LEN, vocab_file_offset=1, data_file_offset=1)
         model = VAE(embed=EMBEDDING_SIZE, encoder_hidden=ENCODER_HIDDEN_SIZE, decoder_hidden=DECODER_HIDDEN_SIZE,
                     device=my_device, vocabulary=training_dataset.get_vocab_size()).to(my_device)
         optim = torch.optim.Adam(model.parameters(), lr=LEARNING_RATE)
@@ -105,8 +105,7 @@ if __name__ == "__main__":
                                                                                                      reconstruction_loss.item(),
                                                                                                      total_loss.item()))
     else:
-        vocab_dataset = EmailDataset(VOCAB, 0)
-        testing_dataset = VAEData(filepath=TESTING, vocab_data_file=VOCAB, max_seq_len=MAX_SEQ_LEN, offset=0)
+        testing_dataset = VAEData(filepath=TESTING, vocab_file=VOCAB, max_seq_len=MAX_SEQ_LEN, vocab_file_offset=1, data_file_offset=0)
         model = VAE(embed=EMBEDDING_SIZE, encoder_hidden=ENCODER_HIDDEN_SIZE, decoder_hidden=DECODER_HIDDEN_SIZE,
                     device=my_device, vocabulary=testing_dataset.get_vocab_size()).to(my_device)
         if pretrained:
@@ -115,8 +114,8 @@ if __name__ == "__main__":
         for i in range(BATCH_SIZE):
             input = testing_dataset[i + 20].to(my_device)
             print("The original sequence is:")
-            print([vocab_dataset.get_token(j) for j in input.tolist()])
+            print([testing_dataset.get_token(j) for j in input.tolist()])
             out = model.inference(input=input, beam_width=BEAM_WIDTH, variation=False)
             print("The translated sequence is:")
-            print([vocab_dataset.get_token(j.item()) for j in out])
+            print([testing_dataset.get_token(j.item()) for j in out])
             print()
