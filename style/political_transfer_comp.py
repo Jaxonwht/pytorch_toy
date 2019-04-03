@@ -44,7 +44,7 @@ if __name__ == "__main__":
     classifier = Classifier(vocab_size=training_dataset.get_vocab_size(), rnn_hidden_dim=RNN_HIDDEN_DIM,
                             rnn_layers=RNN_LAYERS,
                             mid_hidden_dim1=MID_HIDDEN_1, mid_hidden_dim2=MID_HIDDEN_2, class_number=2).cuda()
-    # classifier.load_state_dict(torch.load(CLASSIFIER_MODEL_FILE_PATH)["model_state_dict"])
+    classifier.load_state_dict(torch.load(CLASSIFIER_MODEL_FILE_PATH)["model_state_dict"])
     classifier.untrain()
     loss_fn = nn.CrossEntropyLoss(ignore_index=-1, size_average=False)
     for epoch in range(EPOCHS):
