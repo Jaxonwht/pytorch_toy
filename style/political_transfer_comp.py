@@ -85,10 +85,11 @@ if __name__ == "__main__":
                                                                                                                       0],
                                                                                                                   total_loss.data[
                                                                                                                       0]))
-        print("Saving checkpoints...")
-        torch.save(
-            {"Epoch": epoch, "KL Loss": kl_loss.data[0], "Reconstruction Loss": reconstruction_loss.data[0],
-             "Style Loss": style_loss.data[0],
-             "Total Loss": total_loss.data[0],
-             "model_state_dict": model.state_dict(),
-             "optimizer_state_dict": optim.state_dict()}, MODEL_FILE_PATH)
+            if batch % 1000 == 0:
+                print("Saving checkpoints...")
+                torch.save(
+                    {"Epoch": epoch, "KL Loss": kl_loss.data[0], "Reconstruction Loss": reconstruction_loss.data[0],
+                     "Style Loss": style_loss.data[0],
+                     "Total Loss": total_loss.data[0],
+                     "model_state_dict": model.state_dict(),
+                     "optimizer_state_dict": optim.state_dict()}, MODEL_FILE_PATH)
