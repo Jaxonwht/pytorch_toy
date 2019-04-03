@@ -18,19 +18,20 @@ if __name__ == "__main__":
     EPOCHS = 300
     EMBEDDING_SIZE = 500
     BEAM_WIDTH = 3
-    RECONSTRUCTION_COEFFICIENT = 0.7
+    RECONSTRUCTION_COEFFICIENT = 0.3
     VOCAB = "../data/classtrain.txt"
     TRAINING = "../data/mixed_train.txt"
     TESTING = "../data/democratic_only.test.en"
     PRETRAINED_MODEL_FILE_PATH = "../vae/model/checkpoint.pt"
-    MODEL_FILE_PATH = "model/checkpoint.pt"
+    MODEL_FILE_PATH = "model/republican_style.pt"
     CLASSIFIER_MODEL_FILE_PATH = "../classifier/model/checkpoint.pt"
     pretrained = True
     variation = False
     DESIRED_STYLE = 1
-    CLASSIFIER_RNN_HIDDEN_DIM = 150
-    CLASSIFIER_MID_HIDDEN = 50
-    CLASSIFIER_RNN_LAYERS = 2
+    RNN_HIDDEN_DIM = 100
+    MID_HIDDEN_1 = 100
+    MID_HIDDEN_2 = 40
+    RNN_LAYERS = 1
 
     training_dataset = VAEData(filepath=TRAINING, vocab_file=VOCAB, max_seq_len=MAX_SEQ_LEN, vocab_file_offset=1,
                                data_file_offset=1)
@@ -40,10 +41,10 @@ if __name__ == "__main__":
     if pretrained:
         model.load_state_dict(torch.load(PRETRAINED_MODEL_FILE_PATH)["model_state_dict"])
         # optim.load_state_dict(torch.load(MODEL_FILE_PATH)["optimizer_state_dict"])
-    classifier = Classifier(vocab_size=training_dataset.get_vocab_size(), rnn_hidden_dim=CLASSIFIER_RNN_HIDDEN_DIM,
-                            rnn_layers=CLASSIFIER_RNN_LAYERS, mid_hidden_dim=CLASSIFIER_MID_HIDDEN,
-                            class_number=2).cuda()
-    classifier.load_state_dict(torch.load(CLASSIFIER_MODEL_FILE_PATH)["model_state_dict"])
+    classifier = Classifier(vocab_size=training_dataset.get_vocab_size(), rnn_hidden_dim=RNN_HIDDEN_DIM,
+                            rnn_layers=RNN_LAYERS,
+                            mid_hidden_dim1=MID_HIDDEN_1, mid_hidden_dim2=MID_HIDDEN_2, class_number=2).cuda()
+    # classifier.load_state_dict(torch.load(CLASSIFIER_MODEL_FILE_PATH)["model_state_dict"])
     classifier.untrain()
     loss_fn = nn.CrossEntropyLoss(ignore_index=-1, size_average=False)
     for epoch in range(EPOCHS):

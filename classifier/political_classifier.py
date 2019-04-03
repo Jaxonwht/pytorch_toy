@@ -52,7 +52,8 @@ if __name__ == "__main__":
     if training:
         training_data = VAEData(filepath=TRAINING, vocab_file=VOCAB, max_seq_len=MAX_SEQ_LEN, data_file_offset=1,
                                 vocab_file_offset=1)
-        model = Classifier(vocab_size=training_data.get_vocab_size(), rnn_hidden_dim=RNN_HIDDEN_DIM, rnn_layers=RNN_LAYERS,
+        model = Classifier(vocab_size=training_data.get_vocab_size(), rnn_hidden_dim=RNN_HIDDEN_DIM,
+                           rnn_layers=RNN_LAYERS,
                            mid_hidden_dim1=MID_HIDDEN_1, mid_hidden_dim2=MID_HIDDEN_2, class_number=2).to(my_device)
         optim = Adam(model.parameters(), lr=LEARNING_RATE)
         if pretrained:
@@ -90,8 +91,9 @@ if __name__ == "__main__":
     else:
         training_data = VAEData(filepath=TESTING, vocab_file=VOCAB, max_seq_len=MAX_SEQ_LEN, data_file_offset=1,
                                 vocab_file_offset=1)
-        model = Classifier(vocab_size=training_data.get_vocab_size(), rnn_hidden_dim=RNN_HIDDEN_DIM, rnn_layers=2,
-                           mid_hidden_dim=MID_HIDDEN, class_number=2).to(my_device)
+        model = Classifier(vocab_size=training_data.get_vocab_size(), rnn_hidden_dim=RNN_HIDDEN_DIM,
+                           rnn_layers=RNN_LAYERS,
+                           mid_hidden_dim1=MID_HIDDEN_1, mid_hidden_dim2=MID_HIDDEN_2, class_number=2).to(my_device)
         model.eval()
         if pretrained:
             model.load_state_dict(
