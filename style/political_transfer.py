@@ -10,7 +10,7 @@ if __name__ == "__main__":
         my_device = torch.device("cuda")
     else:
         my_device = torch.device("cpu")
-    BATCH_SIZE = 50
+    BATCH_SIZE = 30
     MAX_SEQ_LEN = 50
     ENCODER_HIDDEN_SIZE = 300
     DECODER_HIDDEN_SIZE = 300
@@ -18,11 +18,11 @@ if __name__ == "__main__":
     EPOCHS = 300
     EMBEDDING_SIZE = 500
     BEAM_WIDTH = 3
-    RECONSTRUCTION_COEFFICIENT = 0.3
+    RECONSTRUCTION_COEFFICIENT = 0.2
     VOCAB = "../data/classtrain.txt"
     TRAINING = "../data/mixed_train.txt"
     TESTING = "../data/democratic_only.test.en"
-    PRETRAINED_MODEL_FILE_PATH = "../vae/model/checkpoint.pt"
+    PRETRAINED_MODEL_FILE_PATH = "model/republican_style.pt"
     MODEL_FILE_PATH = "model/republican_style.pt"
     CLASSIFIER_MODEL_FILE_PATH = "../classifier/model/checkpoint.pt"
     training = True
@@ -42,7 +42,7 @@ if __name__ == "__main__":
         optim = torch.optim.Adam(model.parameters(), lr=LEARNING_RATE)
         if pretrained:
             model.load_state_dict(torch.load(PRETRAINED_MODEL_FILE_PATH)["model_state_dict"])
-            # optim.load_state_dict(torch.load(MODEL_FILE_PATH)["optimizer_state_dict"])
+            optim.load_state_dict(torch.load(PRETRAINED_MODEL_FILE_PATH)["optimizer_state_dict"])
         loss_fn = nn.CrossEntropyLoss(ignore_index=-1, reduction="sum")
         classifier = Classifier(vocab_size=training_dataset.get_vocab_size(), rnn_hidden_dim=RNN_HIDDEN_DIM,
                                 rnn_layers=RNN_LAYERS,

@@ -10,7 +10,7 @@ from vae.data_loader.data_loader_comp import VAEData
 from classifier.political_classifier_comp import Classifier
 
 if __name__ == "__main__":
-    BATCH_SIZE = 50
+    BATCH_SIZE = 30
     MAX_SEQ_LEN = 50
     ENCODER_HIDDEN_SIZE = 300
     DECODER_HIDDEN_SIZE = 300
@@ -18,11 +18,11 @@ if __name__ == "__main__":
     EPOCHS = 300
     EMBEDDING_SIZE = 500
     BEAM_WIDTH = 3
-    RECONSTRUCTION_COEFFICIENT = 0.3
+    RECONSTRUCTION_COEFFICIENT = 0.2
     VOCAB = "../data/classtrain.txt"
     TRAINING = "../data/mixed_train.txt"
     TESTING = "../data/democratic_only.test.en"
-    PRETRAINED_MODEL_FILE_PATH = "../vae/model/checkpoint.pt"
+    PRETRAINED_MODEL_FILE_PATH = "model/republican_style.pt"
     MODEL_FILE_PATH = "model/republican_style.pt"
     CLASSIFIER_MODEL_FILE_PATH = "../classifier/model/checkpoint.pt"
     pretrained = True
@@ -40,7 +40,7 @@ if __name__ == "__main__":
     optim = torch.optim.Adam(model.parameters(), lr=LEARNING_RATE)
     if pretrained:
         model.load_state_dict(torch.load(PRETRAINED_MODEL_FILE_PATH)["model_state_dict"])
-        # optim.load_state_dict(torch.load(MODEL_FILE_PATH)["optimizer_state_dict"])
+        optim.load_state_dict(torch.load(PRETRAINED_MODEL_FILE_PATH)["optimizer_state_dict"])
     classifier = Classifier(vocab_size=training_dataset.get_vocab_size(), rnn_hidden_dim=RNN_HIDDEN_DIM,
                             rnn_layers=RNN_LAYERS,
                             mid_hidden_dim1=MID_HIDDEN_1, mid_hidden_dim2=MID_HIDDEN_2, class_number=2).cuda()

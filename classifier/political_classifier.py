@@ -46,7 +46,7 @@ if __name__ == "__main__":
     TESTING = "../data/democratic_only.dev.en"
     PRETRAINED_MODEL_FILE_PATH = "model/checkpoint.pt"
     MODEL_FILE_PATH = "model/checkpoint.pt"
-    pretrained = False
+    pretrained = True
     training = True
 
     if training:
@@ -85,7 +85,7 @@ if __name__ == "__main__":
                     print("Epoch {}, Batch {}, Loss {}".format(e, batch, loss.item()))
             torch.save(
                 {"Epoch": e,
-                 "Loss": loss.data[0],
+                 "Loss": loss.item(),
                  "model_state_dict": model.state_dict(),
                  "optimizer_state_dict": optim.state_dict()}, MODEL_FILE_PATH)
     else:
