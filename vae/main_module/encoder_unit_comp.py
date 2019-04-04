@@ -60,6 +60,10 @@ class Encoder(nn.Module):
     def kl_convergence_loss(self, mu, logvar):
         return 0.5 * torch.sum(mu.pow(2) + logvar.exp() - 1 - logvar)
 
+    def untrain(self):
+        for param in self.parameters():
+            param.requires_grad = False
+
 
 if __name__ == "__main__":
     input = [Variable(torch.LongTensor([3, 4, 2, 1, 0]).cuda()), Variable(torch.LongTensor([1, 2, 5]).cuda()),

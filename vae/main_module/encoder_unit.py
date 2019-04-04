@@ -40,7 +40,7 @@ class Encoder(nn.Module):
                                              logvar_out_list[batch, :lengths[batch].item()]))
             kl_loss = kl_loss.div(len(lengths))
             hidden = out[:, -1, :]
-            # hidden = [batch, 2 x encoder_hidden_dim]pack_padded_sequence
+            # hidden = [batch, 2 x encoder_hidden_dim]
             return out, hidden, kl_loss
         else:
             out, hidden = self.mu(x)
@@ -60,6 +60,10 @@ class Encoder(nn.Module):
 
     def kl_convergence_loss(self, mu, logvar):
         return 0.5 * torch.sum(mu.pow(2) + logvar.exp() - 1 - logvar)
+
+    def untrain(self):
+        for param in self.parameters():
+            param.requires_grad = False
 
 
 if __name__ == "__main__":
