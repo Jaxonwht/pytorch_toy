@@ -6,10 +6,8 @@ from torch.nn.utils.rnn import pad_packed_sequence
 
 
 class Encoder(nn.Module):
-    def __init__(self, hidden, embedding_layer):
+    def __init__(self, hidden, embed):
         super().__init__()
-        self.embedding = embedding_layer
-        embed = embedding_layer.weight.size()[1]
         self.mu = nn.GRU(input_size=embed, hidden_size=hidden, num_layers=1,
                          bidirectional=True, batch_first=True)
         self.logvar = nn.GRU(input_size=embed, hidden_size=hidden, num_layers=1, bidirectional=True,
@@ -22,12 +20,6 @@ class Encoder(nn.Module):
         :return: (out, hidden, kl_loss), out is [batch, padded_seq_len, 2 x encoder_hidden_dim], hidden is [batch, 2 x encoder_hidden_dim], kl_loss is scalar
         '''
         if variation:
-            input = Variable(torch.zeros(len(lengths), lengths[0], self.embedding.weight.size()[1]).cuda())
-            # input = [batch, max_seq_len, embed]
-            x = [self.embedding(token) for token in x]
-            for seq in range(len(lengths)):
-                input[seq, :lengths[seq], :] = x[seq]
-            x = pack_padded_sequence(input, lengths=lengths, batch_first=True)
             mu_out, _ = self.mu(x)
             logvar_out, _ = self.logvar(x)
             # out is a padded seq
@@ -50,11 +42,6 @@ class Encoder(nn.Module):
             # hidden = [2, batch, encoder_hidden_dim]
             return out, hidden, kl_loss
         else:
-            input = Variable(torch.zeros(len(lengths), lengths[0], self.embedding.weight.size()[1]).cuda())
-            x = [self.embedding(token) for token in x]
-            for seq in range(len(lengths)):
-                input[seq, :lengths[seq], :] = x[seq]
-            x = pack_padded_sequence(input, lengths=lengths, batch_first=True)
             out, hidden = self.mu(x)
             out, _ = pad_packed_sequence(out, batch_first=True)
             hidden = torch.cat((hidden[0], hidden[1]), dim=1)

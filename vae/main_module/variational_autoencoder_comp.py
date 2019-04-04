@@ -16,21 +16,27 @@ class VAE(nn.Module):
     def __init__(self, embed, encoder_hidden, decoder_hidden, embedding_weights=None, vocabulary=None):
         super().__init__()
         if vocabulary:
-            embedding = Embedding(vocabulary, embed)
+            self.embedding = Embedding(vocabulary, embed)
         else:
-            embedding = Embedding(embedding_weights.size()[0], embed)
-            embedding.weight.data = embedding_weights
-        self.encoder = Encoder(embedding_layer=embedding, hidden=encoder_hidden)
+            self.embedding = Embedding(embedding_weights.size()[0], embed)
+            self.embedding.weight.data = embedding_weights
+        self.encoder = Encoder(hidden=encoder_hidden, embed=embed)
         self.translator = Linear(in_features=encoder_hidden * 2, out_features=decoder_hidden)
         self.translator_activation = nn.LeakyReLU()
-        self.decoder = Decoder(encoder_hidden=encoder_hidden, decoder_hidden=decoder_hidden, embedding_layer=embedding)
+        self.decoder = Decoder(encoder_hidden=encoder_hidden, decoder_hidden=decoder_hidden, embedding_layer=self.embedding)
 
     def forward(self, x, lengths, teacher_forcing_ratio, variation):
         '''
         :param x: list of tensors, len(list) = batch, each tensor is [variable_seq_len]
         :param lengths: [batch]
         '''
-        encoder_outs, encoder_hidden, kl_loss = self.encoder(x, lengths, variation=variation)
+        input = Variable(torch.zeros(len(lengths), lengths[0], self.embedding.weight.size()[1]).cuda())
+        # input = [batch, max_seq_len, embed]
+        tokens = [self.embedding(token) for token in x]
+        for seq in range(len(lengths)):
+            input[seq, :lengths[seq], :] = tokens[seq]
+        input = torch.nn.utils.rnn.pack_padded_sequence(input, lengths=lengths, batch_first=True)
+        encoder_outs, encoder_hidden, kl_loss = self.encoder(input, lengths, variation=variation)
         decoder_hidden = self.translator_activation(self.translator(encoder_hidden))
         out = self.decoder(x, decoder_hidden, encoder_outs, lengths, teacher_forcing_ratio=teacher_forcing_ratio)
         return out, kl_loss
@@ -47,10 +53,10 @@ if __name__ == "__main__":
     VOCAB = "../../data/classtrain.txt"
     TRAINING = "../../data/mixed_train.txt"
     WORD2VEC_WEIGHT = "../../word2vec/model/model_state_dict.pt"
-    PRETRAINED_MODEL_FILE_PATH = "../model/checkpoint_variation.pt"
-    MODEL_FILE_PATH = "../model/checkpoint_variation.pt"
-    pretrained = False
-    variation = True
+    PRETRAINED_MODEL_FILE_PATH = "../model/checkpoint.pt"
+    MODEL_FILE_PATH = "../model/checkpoint.pt"
+    pretrained = True
+    variation = False
 
     training_dataset = VAEData(filepath=TRAINING, vocab_file=VOCAB, max_seq_len=MAX_SEQ_LEN, vocab_file_offset=1,
                                data_file_offset=1)
@@ -58,7 +64,7 @@ if __name__ == "__main__":
                 vocabulary=training_dataset.get_vocab_size()).cuda()
     optim = torch.optim.Adam(model.parameters(), lr=LEARNING_RATE)
     if pretrained:
-        model.load_state_dict(torch.load(PRETRAINED_MODEL_FILE_PATH)["model_state_dict"])
+        model.load_state_dict(torch.load(PRETRAINED_MODEL_FILE_PATH)["model_state_dict"], strict=False)
         # optim.load_state_dict(torch.load(MODEL_FILE_PATH)["optimizer_state_dict"])
     loss_fn = nn.CrossEntropyLoss(ignore_index=-1, size_average=False)
     for epoch in range(EPOCHS):
