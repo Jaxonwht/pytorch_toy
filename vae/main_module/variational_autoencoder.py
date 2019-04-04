@@ -12,13 +12,13 @@ class VAE(nn.Module):
     def __init__(self, embed, encoder_hidden, decoder_hidden, device, embedding_weights=None, vocabulary=None):
         super().__init__()
         if vocabulary:
-            embedding = Embedding(vocabulary, embed)
+            self.embedding = Embedding(vocabulary, embed)
         else:
-            embedding = Embedding.from_pretrained(embeddings=embedding_weights)
-        self.encoder = Encoder(embedding_layer=embedding, hidden=encoder_hidden, device=device)
+            self.embedding = Embedding.from_pretrained(embeddings=embedding_weights)
+        self.encoder = Encoder(hidden=encoder_hidden, embed=embed, device=device)
         self.translator = Linear(in_features=encoder_hidden * 2, out_features=decoder_hidden)
         self.translator_activation = nn.LeakyReLU()
-        self.decoder = Decoder(encoder_hidden=encoder_hidden, decoder_hidden=decoder_hidden, embedding_layer=embedding,
+        self.decoder = Decoder(encoder_hidden=encoder_hidden, decoder_hidden=decoder_hidden, embedding_layer=self.embedding,
                                device=device)
 
     def forward(self, x, lengths, teacher_forcing_ratio, variation):
@@ -26,7 +26,9 @@ class VAE(nn.Module):
         :param x: list of tensors, len(list) = batch, each tensor is [variable_seq_len]
         :param lengths: [batch]
         '''
-        encoder_outs, encoder_hidden, kl_loss = self.encoder(x, lengths, variation=variation)
+        input = [self.embedding(token) for token in x]
+        input = torch.nn.utils.rnn.pack_sequence(input)
+        encoder_outs, encoder_hidden, kl_loss = self.encoder(input, lengths, variation=variation)
         decoder_hidden = self.translator_activation(self.translator(encoder_hidden))
         out = self.decoder(x, decoder_hidden, encoder_outs, lengths, teacher_forcing_ratio=teacher_forcing_ratio)
         return out, kl_loss
@@ -65,8 +67,8 @@ if __name__ == "__main__":
     WORD2VEC_WEIGHT = "../../word2vec/model/model_state_dict.pt"
     TESTING = "../../data/democratic_only.test.en"
     PRETRAINED_MODEL_FILE_PATH = "../model/checkpoint.pt"
-    MODEL_FILE_PATH = "../model/checkpoint_variation.pt"
-    training = False
+    MODEL_FILE_PATH = "../model/checkpoint.pt"
+    training = True
     pretrained = True
     variation = False
 
@@ -77,7 +79,7 @@ if __name__ == "__main__":
                     device=my_device, vocabulary=training_dataset.get_vocab_size()).to(my_device)
         optim = torch.optim.Adam(model.parameters(), lr=LEARNING_RATE)
         if pretrained:
-            model.load_state_dict(torch.load(PRETRAINED_MODEL_FILE_PATH)["model_state_dict"])
+            model.load_state_dict(torch.load(PRETRAINED_MODEL_FILE_PATH)["model_state_dict"], strict=False)
             # optim.load_state_dict(torch.load(MODEL_FILE_PATH)["optimizer_state_dict"])
         loss_fn = nn.CrossEntropyLoss(ignore_index=-1, reduction="sum")
         for epoch in range(EPOCHS):

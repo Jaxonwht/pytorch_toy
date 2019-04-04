@@ -7,11 +7,9 @@ from torch.nn.utils.rnn import pad_sequence
 
 
 class Encoder(nn.Module):
-    def __init__(self, hidden, embedding_layer, device):
+    def __init__(self, hidden, embed, device):
         super().__init__()
         self.device = device
-        self.embedding = embedding_layer
-        embed = embedding_layer.weight.size()[1]
         self.mu = nn.GRU(input_size=embed, hidden_size=hidden, num_layers=1,
                          bidirectional=True, batch_first=True)
         self.logvar = nn.GRU(input_size=embed, hidden_size=hidden, num_layers=1, bidirectional=True,
@@ -24,9 +22,6 @@ class Encoder(nn.Module):
         :return: (out, hidden, kl_loss), out is [batch, padded_seq_len, 2 x encoder_hidden_dim], hidden is [batch, 2 x encoder_hidden_dim], kl_loss is scalar
         '''
         if variation:
-            input = [self.embedding(token) for token in x]
-            x = pad_sequence(input, batch_first=True)
-            x = pack_padded_sequence(x, lengths=lengths, batch_first=True)
             mu_out, _ = self.mu(x)
             logvar_out, _ = self.logvar(x)
             # out is a padded seq
@@ -45,11 +40,9 @@ class Encoder(nn.Module):
                                              logvar_out_list[batch, :lengths[batch].item()]))
             kl_loss = kl_loss.div(len(lengths))
             hidden = out[:, -1, :]
-            # hidden = [batch, 2 x encoder_hidden_dim]
+            # hidden = [batch, 2 x encoder_hidden_dim]pack_padded_sequence
             return out, hidden, kl_loss
         else:
-            input = [self.embedding(token) for token in x]
-            x = pack_sequence(input)
             out, hidden = self.mu(x)
             out, _ = pad_packed_sequence(out, batch_first=True, total_length=lengths[0])
             hidden = torch.cat((hidden[0], hidden[1]), dim=1)
