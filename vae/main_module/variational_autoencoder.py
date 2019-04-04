@@ -31,18 +31,19 @@ class VAE(nn.Module):
         out = self.decoder(x, decoder_hidden, encoder_outs, lengths, teacher_forcing_ratio=teacher_forcing_ratio)
         return out, kl_loss
 
-    def inference(self, input, beam_width, variation):
+    def inference(self, input, beam_width, variation, max_seq_len):
         '''
         :param input: [seq_len]
         :param beam_width: scalar
         :param variation: boolean
+        :param max_seq_len: scalar
         :return: a tensor of variable length
         '''
         with torch.no_grad():
             encoder_outs, encoder_hidden, _ = self.encoder([input], torch.tensor([len(input)]), variation=variation)
             decoder_hidden = self.translator_activation(self.translator(encoder_hidden))
             out = self.decoder.inference(initial_hidden=decoder_hidden, encoder_outs=encoder_outs,
-                                         beam_width=beam_width, length=torch.tensor([len(input)]))
+                                         beam_width=beam_width, length=torch.tensor([len(input)]), max_seq_len=max_seq_len)
             return out
 
 
@@ -111,12 +112,11 @@ if __name__ == "__main__":
                     device=my_device, vocabulary=testing_dataset.get_vocab_size()).to(my_device)
         if pretrained:
             model.load_state_dict(torch.load(PRETRAINED_MODEL_FILE_PATH)["model_state_dict"])
-        input = [testing_dataset[i].to(my_device) for i in range(BATCH_SIZE)]
-        for i in range(BATCH_SIZE):
-            input = testing_dataset[i + 20].to(my_device)
+        for i in range(100):
+            input = testing_dataset[i].to(my_device)
             print("The original sequence is:")
             print([testing_dataset.get_token(j) for j in input.tolist()])
-            out = model.inference(input=input, beam_width=BEAM_WIDTH, variation=False)
+            out = model.inference(input=input, beam_width=BEAM_WIDTH, variation=False, max_seq_len=MAX_SEQ_LEN)
             print("The translated sequence is:")
             print([testing_dataset.get_token(j.item()) for j in out])
             print()

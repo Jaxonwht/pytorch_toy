@@ -44,12 +44,13 @@ class Decoder(nn.Module):
             out[:, index, :] = self.interpret(hidden)
         return out
 
-    def inference(self, initial_hidden, encoder_outs, beam_width, length):
+    def inference(self, initial_hidden, encoder_outs, beam_width, length, max_seq_len):
         '''
         :param initial_hidden: [1, decoder_hidden_dim]
         :param encoder_outs: [1, seq_len, 2 x encoder_hidden_dim]
         :param beam_width: scalar
         :param length: [1]
+        :param max_seq_len: scalar
         :return: [some_other_seq_len]
         '''
         logsoftmax = nn.LogSoftmax(dim=1)
@@ -71,7 +72,7 @@ class Decoder(nn.Module):
         # encoder_outs = [beam_width, seq_len, 2 x encoder_hidden_dim]
         length = length.repeat(beam_width)
         while True:
-            if indices[0].item() == 1:
+            if indices[0].item() == 1 or len(tokens_seq[0]) == max_seq_len:
                 return torch.tensor([j.item() for j in tokens_seq[0]])
             context = self.attention(encoder_outs, hidden_seq, length)
             modified_input = torch.cat((self.embedding(indices), context), dim=1)

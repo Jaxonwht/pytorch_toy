@@ -25,7 +25,7 @@ if __name__ == "__main__":
     PRETRAINED_MODEL_FILE_PATH = "model/republican_style.pt"
     MODEL_FILE_PATH = "model/republican_style.pt"
     CLASSIFIER_MODEL_FILE_PATH = "../classifier/model/checkpoint.pt"
-    training = True
+    training = False
     pretrained = True
     variation = False
     DESIRED_STYLE = 1
@@ -101,12 +101,11 @@ if __name__ == "__main__":
                     device=my_device, vocabulary=testing_dataset.get_vocab_size()).to(my_device)
         if pretrained:
             model.load_state_dict(torch.load(PRETRAINED_MODEL_FILE_PATH)["model_state_dict"])
-        input = [testing_dataset[i].to(my_device) for i in range(BATCH_SIZE)]
-        for i in range(BATCH_SIZE):
-            input = testing_dataset[i + 20].to(my_device)
+        for i in range(100):
+            input = testing_dataset[i].to(my_device)
             print("The original sequence is:")
             print([testing_dataset.get_token(j) for j in input.tolist()])
-            out = model.inference(input=input, beam_width=BEAM_WIDTH, variation=False)
+            out = model.inference(input=input, beam_width=BEAM_WIDTH, variation=False, max_seq_len=MAX_SEQ_LEN)
             print("The translated sequence is:")
             print([testing_dataset.get_token(j.item()) for j in out])
             print()
