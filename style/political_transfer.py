@@ -1,5 +1,6 @@
 import torch.nn as nn
 import torch.optim
+import torch.nn.functional as F
 
 from classifier.political_classifier import Classifier
 from vae.data_loader.data_loader import VAEData
@@ -22,7 +23,7 @@ if __name__ == "__main__":
     VOCAB = "../data/classtrain.txt"
     TRAINING = "../data/mixed_train.txt"
     TESTING = "../data/democratic_only.test.en"
-    PRETRAINED_MODEL_FILE_PATH = "model/republican_style.pt"
+    PRETRAINED_MODEL_FILE_PATH = "../vae/model/checkpoint.pt"
     MODEL_FILE_PATH = "model/republican_style.pt"
     CLASSIFIER_MODEL_FILE_PATH = "../classifier/model/checkpoint.pt"
     training = True
@@ -42,7 +43,6 @@ if __name__ == "__main__":
         optim = torch.optim.Adam(filter(lambda p: p.requires_grad, model.parameters()), lr=LEARNING_RATE)
         if pretrained:
             model.load_state_dict(torch.load(PRETRAINED_MODEL_FILE_PATH)["model_state_dict"])
-            optim.load_state_dict(torch.load(PRETRAINED_MODEL_FILE_PATH)["optimizer_state_dict"])
         classification_loss_fn = nn.CrossEntropyLoss()
         reconstruction_loss_fn = nn.MSELoss(reduction="sum")
         classifier = Classifier(vocab_size=training_dataset.get_vocab_size(), rnn_hidden_dim=HIDDEN_DIM,
@@ -57,7 +57,7 @@ if __name__ == "__main__":
                 lengths = torch.tensor([len(x) for x in input])
                 out, kl_loss = model(input, lengths, teacher_forcing_ratio=0.9, variation=variation)
                 # out = [batch, max_seq_len, vocab_size]
-                packed_out = torch.nn.utils.rnn.pack_padded_sequence(input=out, lengths=lengths, batch_first=True)
+                packed_out = torch.nn.utils.rnn.pack_padded_sequence(input=F.softmax(out, dim=2), lengths=lengths, batch_first=True)
                 pred = classifier(packed_out)
                 # pred = [batch, class_number]
                 target = torch.zeros(BATCH_SIZE, dtype=torch.long, device=my_device)
@@ -67,7 +67,7 @@ if __name__ == "__main__":
                 reconstruction_loss = torch.zeros(1).to(my_device)
                 for i in range(1, BATCH_SIZE):
                     reconstruction_loss += reconstruction_loss_fn(
-                        torch.matmul(out[i, :lengths[i]], model.embedding.weight), model.embedding(input[i]))
+                        torch.matmul(F.softmax(out[i, :lengths[i]], dim=1), model.embedding.weight), model.embedding(input[i]))
                 reconstruction_loss = reconstruction_loss / BATCH_SIZE
                 # reconstruction_loss = torch.zeros(1, device=my_device)
                 # for token_index in range(1, lengths[0]):
