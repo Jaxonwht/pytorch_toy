@@ -18,56 +18,51 @@ if __name__ == "__main__":
     EPOCHS = 300
     EMBEDDING_SIZE = 500
     BEAM_WIDTH = 3
-    RECONSTRUCTION_COEFFICIENT = 0.2
+    RECONSTRUCTION_COEFFICIENT = 0.02
     VOCAB = "../data/classtrain.txt"
     TRAINING = "../data/mixed_train.txt"
     TESTING = "../data/democratic_only.test.en"
     PRETRAINED_MODEL_FILE_PATH = "model/republican_style.pt"
     MODEL_FILE_PATH = "model/republican_style.pt"
     CLASSIFIER_MODEL_FILE_PATH = "../classifier/model/checkpoint.pt"
-    pretrained = True
+    pretrained = False
     variation = False
     DESIRED_STYLE = 1
-    RNN_HIDDEN_DIM = 100
-    MID_HIDDEN_1 = 100
-    MID_HIDDEN_2 = 40
-    RNN_LAYERS = 1
+    HIDDEN_DIM = 50
+    MID_HIDDEN_1 = 50
+    MID_HIDDEN_2 = 10
 
     training_dataset = VAEData(filepath=TRAINING, vocab_file=VOCAB, max_seq_len=MAX_SEQ_LEN, vocab_file_offset=1,
                                data_file_offset=1)
     model = VAE(embed=EMBEDDING_SIZE, encoder_hidden=ENCODER_HIDDEN_SIZE, decoder_hidden=DECODER_HIDDEN_SIZE,
                 vocabulary=training_dataset.get_vocab_size()).cuda()
-    optim = torch.optim.Adam(model.parameters(), lr=LEARNING_RATE)
+    model.embedding.weight.requires_grad = False
+    optim = torch.optim.Adam(filter(lambda p: p.requires_grad, model.parameters()), lr=LEARNING_RATE)
     if pretrained:
         model.load_state_dict(torch.load(PRETRAINED_MODEL_FILE_PATH)["model_state_dict"])
         optim.load_state_dict(torch.load(PRETRAINED_MODEL_FILE_PATH)["optimizer_state_dict"])
-    classifier = Classifier(vocab_size=training_dataset.get_vocab_size(), rnn_hidden_dim=RNN_HIDDEN_DIM,
-                            rnn_layers=RNN_LAYERS,
+    classification_loss_fn = nn.CrossEntropyLoss()
+    reconstruction_loss_fn = nn.MSELoss(size_average=False)
+    classifier = Classifier(vocab_size=training_dataset.get_vocab_size(), rnn_hidden_dim=HIDDEN_DIM,
                             mid_hidden_dim1=MID_HIDDEN_1, mid_hidden_dim2=MID_HIDDEN_2, class_number=2).cuda()
     classifier.load_state_dict(torch.load(CLASSIFIER_MODEL_FILE_PATH)["model_state_dict"])
     classifier.untrain()
-    loss_fn = nn.CrossEntropyLoss(ignore_index=-1, size_average=False)
     for epoch in range(EPOCHS):
         for batch in range(len(training_dataset) // BATCH_SIZE):
             input = [Variable(training_dataset[batch * BATCH_SIZE + i].cuda()) for i in range(BATCH_SIZE)]
             input.sort(key=lambda seq: len(seq), reverse=True)
             lengths = [len(seq) for seq in input]
             out, kl_loss = model(input, lengths, teacher_forcing_ratio=0.9, variation=variation)
-            packed_out = nn.utils.rnn.pack_padded_sequence((out), lengths, batch_first=True)
+            # out: [batch, max_seq_len, vocab_size]
+            packed_out = nn.utils.rnn.pack_padded_sequence(out, lengths, batch_first=True)
             target = torch.zeros(BATCH_SIZE).type(torch.LongTensor).cuda()
             target.fill_(DESIRED_STYLE)
             pred = classifier(packed_out)
-            style_loss = loss_fn(pred, Variable(target, requires_grad=False)) / BATCH_SIZE
-            padded_input = Variable(torch.zeros(len(lengths), lengths[0]).type(torch.LongTensor).cuda())
-            # padded_input = [batch, max_seq_len]
-            padded_input.fill_(-1)
-            for batch_index in range(len(lengths)):
-                padded_input[batch_index, :lengths[batch_index]] = input[batch_index]
-            out = out.permute(0, 2, 1)
-            # out: [batch, max_seq_len, vocab_size] -> [batch, vocab_size, max_seq_len]
+            style_loss = classification_loss_fn(pred, Variable(target, requires_grad=False)) / BATCH_SIZE
             reconstruction_loss = Variable(torch.zeros(1).cuda())
-            for token_index in range(1, lengths[0]):
-                reconstruction_loss += loss_fn(out[:, :, token_index], padded_input[:, token_index])
+            for i in range(1, BATCH_SIZE):
+                reconstructed = torch.matmul(out[i, :lengths[i]], model.embedding.weight)
+                reconstruction_loss += reconstruction_loss_fn(reconstructed, model.embedding(input[i]))
             reconstruction_loss = reconstruction_loss / BATCH_SIZE
             total_loss = RECONSTRUCTION_COEFFICIENT * reconstruction_loss + (
                     1 - RECONSTRUCTION_COEFFICIENT) * style_loss + kl_loss

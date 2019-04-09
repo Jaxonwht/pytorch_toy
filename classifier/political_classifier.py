@@ -60,7 +60,9 @@ if __name__ == "__main__":
         loss_fn = nn.CrossEntropyLoss()
         for e in range(EPOCHS):
             for batch in range(len(training_data) // BATCH_SIZE):
-                raw = [(training_data[batch * BATCH_SIZE + i].to(my_device), training_data.get_tag(batch * BATCH_SIZE + i)) for i in range(BATCH_SIZE)]
+                raw = [
+                    (training_data[batch * BATCH_SIZE + i].to(my_device), training_data.get_tag(batch * BATCH_SIZE + i))
+                    for i in range(BATCH_SIZE)]
                 raw.sort(key=lambda x: len(x[0]), reverse=True)
                 input = []
                 for i in range(BATCH_SIZE):

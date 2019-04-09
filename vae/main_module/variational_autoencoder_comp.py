@@ -23,7 +23,8 @@ class VAE(nn.Module):
         self.encoder = Encoder(hidden=encoder_hidden, embed=embed)
         self.translator = Linear(in_features=encoder_hidden * 2, out_features=decoder_hidden)
         self.translator_activation = nn.LeakyReLU()
-        self.decoder = Decoder(encoder_hidden=encoder_hidden, decoder_hidden=decoder_hidden, embedding_layer=self.embedding)
+        self.decoder = Decoder(encoder_hidden=encoder_hidden, decoder_hidden=decoder_hidden,
+                               embedding_layer=self.embedding)
 
     def forward(self, x, lengths, teacher_forcing_ratio, variation):
         '''

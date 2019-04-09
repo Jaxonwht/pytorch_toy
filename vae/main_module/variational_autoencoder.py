@@ -18,7 +18,8 @@ class VAE(nn.Module):
         self.encoder = Encoder(hidden=encoder_hidden, embed=embed, device=device)
         self.translator = Linear(in_features=encoder_hidden * 2, out_features=decoder_hidden)
         self.translator_activation = nn.LeakyReLU()
-        self.decoder = Decoder(encoder_hidden=encoder_hidden, decoder_hidden=decoder_hidden, embedding_layer=self.embedding,
+        self.decoder = Decoder(encoder_hidden=encoder_hidden, decoder_hidden=decoder_hidden,
+                               embedding_layer=self.embedding,
                                device=device)
 
     def forward(self, x, lengths, teacher_forcing_ratio, variation):
@@ -45,7 +46,8 @@ class VAE(nn.Module):
             encoder_outs, encoder_hidden, _ = self.encoder([input], torch.tensor([len(input)]), variation=variation)
             decoder_hidden = self.translator_activation(self.translator(encoder_hidden))
             out = self.decoder.inference(initial_hidden=decoder_hidden, encoder_outs=encoder_outs,
-                                         beam_width=beam_width, length=torch.tensor([len(input)]), max_seq_len=max_seq_len)
+                                         beam_width=beam_width, length=torch.tensor([len(input)]),
+                                         max_seq_len=max_seq_len)
             return out
 
 
