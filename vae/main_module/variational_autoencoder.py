@@ -1,3 +1,6 @@
+import sys
+
+sys.path.append("/workspace/pytorch_toy/")
 import torch.nn as nn
 import torch.optim
 from torch.nn.modules.linear import Linear
@@ -61,11 +64,11 @@ if __name__ == "__main__":
         my_device = torch.device("cpu")
     BATCH_SIZE = 30
     MAX_SEQ_LEN = 50
-    ENCODER_HIDDEN_SIZE = 200
-    DECODER_HIDDEN_SIZE = 200
+    ENCODER_HIDDEN_SIZE = 300
+    DECODER_HIDDEN_SIZE = 300
     LEARNING_RATE = 1e-3
     EPOCHS = 300
-    EMBEDDING_SIZE = 200
+    EMBEDDING_SIZE = 300
     BEAM_WIDTH = 3
     VOCAB = "../../data/vocab.txt"
     TRAINING = "../../data/mixed_train.txt"
@@ -108,10 +111,8 @@ if __name__ == "__main__":
                 optim.zero_grad()
                 total_loss.backward()
                 optim.step()
-                print("Epoch {}, Batch {}, KL Loss {}, Reconstruction Loss {}, Total Loss {}".format(epoch, batch,
-                                                                                                     kl_loss.item(),
-                                                                                                     reconstruction_loss.item(),
-                                                                                                     total_loss.item()))
+                if batch % 10 == 0:
+                    print("Epoch {}, Batch {}, KL Loss {}, Reconstruction Loss {}, Total Loss {}".format(epoch, batch, kl_loss.item(), reconstruction_loss.item(), total_loss.item()))
             print("Saving checkpoints...")
             torch.save(
                 {"Epoch": epoch, "KL Loss": kl_loss.item(), "Reconstruction Loss": reconstruction_loss.item(),

@@ -1,3 +1,6 @@
+import sys
+
+sys.path.append("/workspace/pytorch_toy/")
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
