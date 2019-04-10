@@ -13,8 +13,8 @@ if __name__ == "__main__":
         my_device = torch.device("cpu")
     BATCH_SIZE = 30
     MAX_SEQ_LEN = 50
-    ENCODER_HIDDEN_SIZE = 100
-    DECODER_HIDDEN_SIZE = 100
+    ENCODER_HIDDEN_SIZE = 200
+    DECODER_HIDDEN_SIZE = 200
     LEARNING_RATE = 1e-3
     EPOCHS = 300
     EMBEDDING_SIZE = 200

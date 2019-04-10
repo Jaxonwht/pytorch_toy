@@ -44,7 +44,7 @@ class VAE(nn.Module):
 
 
 if __name__ == "__main__":
-    BATCH_SIZE = 50
+    BATCH_SIZE = 15
     MAX_SEQ_LEN = 50
     ENCODER_HIDDEN_SIZE = 100
     DECODER_HIDDEN_SIZE = 100
