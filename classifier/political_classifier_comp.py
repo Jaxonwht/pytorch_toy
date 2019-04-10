@@ -38,7 +38,7 @@ if __name__ == "__main__":
     HIDDEN_DIM = 50
     MID_HIDDEN_1 = 50
     MID_HIDDEN_2 = 10
-    VOCAB = "../data/classtrain.txt"
+    VOCAB = "../data/vocab.txt"
     TRAINING = "../data/mixed_train.txt"
     TESTING = "../data/democratic_only.dev.en"
     PRETRAINED_MODEL_FILE_PATH = "model/checkpoint.pt"

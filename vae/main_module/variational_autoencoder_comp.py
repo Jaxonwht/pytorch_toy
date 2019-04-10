@@ -51,12 +51,12 @@ if __name__ == "__main__":
     LEARNING_RATE = 1e-3
     EPOCHS = 300
     EMBEDDING_SIZE = 500
-    VOCAB = "../../data/classtrain.txt"
+    VOCAB = "../../data/vocab.txt"
     TRAINING = "../../data/mixed_train.txt"
     WORD2VEC_WEIGHT = "../../word2vec/model/model_state_dict.pt"
     PRETRAINED_MODEL_FILE_PATH = "../model/checkpoint.pt"
     MODEL_FILE_PATH = "../model/checkpoint.pt"
-    pretrained = True
+    pretrained = False
     variation = False
 
     training_dataset = VAEData(filepath=TRAINING, vocab_file=VOCAB, max_seq_len=MAX_SEQ_LEN, vocab_file_offset=1,

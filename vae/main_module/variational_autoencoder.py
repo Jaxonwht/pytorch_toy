@@ -67,14 +67,14 @@ if __name__ == "__main__":
     EPOCHS = 300
     EMBEDDING_SIZE = 500
     BEAM_WIDTH = 3
-    VOCAB = "../../data/classtrain.txt"
+    VOCAB = "../../data/vocab.txt"
     TRAINING = "../../data/mixed_train.txt"
     WORD2VEC_WEIGHT = "../../word2vec/model/model_state_dict.pt"
     TESTING = "../../data/democratic_only.test.en"
     PRETRAINED_MODEL_FILE_PATH = "../model/checkpoint.pt"
     MODEL_FILE_PATH = "../model/checkpoint.pt"
-    training = False
-    pretrained = True
+    training = True
+    pretrained = False
     variation = False
 
     if training:

@@ -20,7 +20,7 @@ if __name__ == "__main__":
     EMBEDDING_SIZE = 500
     BEAM_WIDTH = 3
     RECONSTRUCTION_COEFFICIENT = 0.02
-    VOCAB = "../data/classtrain.txt"
+    VOCAB = "../data/vocab.txt"
     TRAINING = "../data/mixed_train.txt"
     TESTING = "../data/democratic_only.test.en"
     PRETRAINED_MODEL_FILE_PATH = "../vae/model/checkpoint.pt"
