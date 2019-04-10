@@ -43,10 +43,13 @@ class VAE(nn.Module):
         :return: a tensor of variable length
         '''
         with torch.no_grad():
-            encoder_outs, encoder_hidden, _ = self.encoder([input], torch.tensor([len(input)]), variation=variation)
+            length = torch.tensor([len(input)])
+            input = self.embedding(input)
+            input = torch.nn.utils.rnn.pack_sequence([input])
+            encoder_outs, encoder_hidden, _ = self.encoder(input, length, variation=variation)
             decoder_hidden = self.translator_activation(self.translator(encoder_hidden))
             out = self.decoder.inference(initial_hidden=decoder_hidden, encoder_outs=encoder_outs,
-                                         beam_width=beam_width, length=torch.tensor([len(input)]),
+                                         beam_width=beam_width, length=length,
                                          max_seq_len=max_seq_len)
             return out
 
@@ -70,7 +73,7 @@ if __name__ == "__main__":
     TESTING = "../../data/democratic_only.test.en"
     PRETRAINED_MODEL_FILE_PATH = "../model/checkpoint.pt"
     MODEL_FILE_PATH = "../model/checkpoint.pt"
-    training = True
+    training = False
     pretrained = True
     variation = False
 

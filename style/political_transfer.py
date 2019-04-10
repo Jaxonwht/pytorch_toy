@@ -23,11 +23,11 @@ if __name__ == "__main__":
     VOCAB = "../data/classtrain.txt"
     TRAINING = "../data/mixed_train.txt"
     TESTING = "../data/democratic_only.test.en"
-    PRETRAINED_MODEL_FILE_PATH = "../vae/model/checkpoint.pt"
+    PRETRAINED_MODEL_FILE_PATH = "model/republican_style.pt"
     MODEL_FILE_PATH = "model/republican_style.pt"
     CLASSIFIER_MODEL_FILE_PATH = "../classifier/model/checkpoint.pt"
-    training = True
-    pretrained = False
+    training = False
+    pretrained = True
     variation = False
     DESIRED_STYLE = 1
     HIDDEN_DIM = 50
@@ -98,11 +98,12 @@ if __name__ == "__main__":
         model = VAE(embed=EMBEDDING_SIZE, encoder_hidden=ENCODER_HIDDEN_SIZE, decoder_hidden=DECODER_HIDDEN_SIZE,
                     device=my_device, vocabulary=testing_dataset.get_vocab_size()).to(my_device)
         if pretrained:
-            model.load_state_dict(torch.load(PRETRAINED_MODEL_FILE_PATH)["model_state_dict"])
-        for i in range(100):
+            model.load_state_dict(torch.load(MODEL_FILE_PATH)["model_state_dict"])
+        for i in range(10):
             input = testing_dataset[i].to(my_device)
             print("The original sequence is:")
             print([testing_dataset.get_token(j) for j in input.tolist()])
+            # with torch.no_grad():
             out = model.inference(input=input, beam_width=BEAM_WIDTH, variation=False, max_seq_len=MAX_SEQ_LEN)
             print("The translated sequence is:")
             print([testing_dataset.get_token(j.item()) for j in out])
