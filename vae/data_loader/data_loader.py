@@ -7,9 +7,10 @@ class VAEData(Dataset):
         super().__init__()
         END_OF_STRING = "&EOS"
         START_OF_STRING = "&SOS"
+        UNKNOWN = "&UNKNOWN"
         wordlists = [line.strip().split(" ")[vocab_file_offset:] for line in open(vocab_file)]
-        self.index_dict = {0: START_OF_STRING, 1: END_OF_STRING}
-        self.word_dict = {START_OF_STRING: 0, END_OF_STRING: 1}
+        self.index_dict = {0: START_OF_STRING, 1: END_OF_STRING, 2: UNKNOWN}
+        self.word_dict = {START_OF_STRING: 0, END_OF_STRING: 1, UNKNOWN: 2}
         self.tag = []
         index = 2
         for wordseq in wordlists:
@@ -30,16 +31,13 @@ class VAEData(Dataset):
                 line.insert(0, START_OF_STRING)
                 if len(line) > max_seq_len:
                     continue
-                add = True
                 for index, token in enumerate(line):
                     if token not in self.word_dict:
-                        add = False
-                        break
-                    num = self.word_dict[token]
-                    line[index] = num
-                if add:
-                    self.content.append(line)
-                    self.tag.append(tag)
+                        line[index] = 2
+                    else:
+                        line[index] = self.word_dict[token]
+                self.content.append(line)
+                self.tag.append(tag)
 
     def __getitem__(self, item):
         return torch.tensor(self.content[item])
