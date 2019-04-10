@@ -13,11 +13,11 @@ if __name__ == "__main__":
         my_device = torch.device("cpu")
     BATCH_SIZE = 30
     MAX_SEQ_LEN = 50
-    ENCODER_HIDDEN_SIZE = 300
-    DECODER_HIDDEN_SIZE = 300
+    ENCODER_HIDDEN_SIZE = 100
+    DECODER_HIDDEN_SIZE = 100
     LEARNING_RATE = 1e-3
     EPOCHS = 300
-    EMBEDDING_SIZE = 500
+    EMBEDDING_SIZE = 200
     BEAM_WIDTH = 3
     RECONSTRUCTION_COEFFICIENT = 0.2
     VOCAB = "../data/vocab.txt"

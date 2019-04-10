@@ -59,13 +59,13 @@ if __name__ == "__main__":
         my_device = torch.device("cuda")
     else:
         my_device = torch.device("cpu")
-    BATCH_SIZE = 50
+    BATCH_SIZE = 30
     MAX_SEQ_LEN = 50
-    ENCODER_HIDDEN_SIZE = 300
-    DECODER_HIDDEN_SIZE = 300
+    ENCODER_HIDDEN_SIZE = 100
+    DECODER_HIDDEN_SIZE = 100
     LEARNING_RATE = 1e-3
     EPOCHS = 300
-    EMBEDDING_SIZE = 500
+    EMBEDDING_SIZE = 200
     BEAM_WIDTH = 3
     VOCAB = "../../data/vocab.txt"
     TRAINING = "../../data/mixed_train.txt"
@@ -80,6 +80,7 @@ if __name__ == "__main__":
     if training:
         training_dataset = VAEData(filepath=TRAINING, vocab_file=VOCAB, max_seq_len=MAX_SEQ_LEN, vocab_file_offset=1,
                                    data_file_offset=1)
+        print(training_dataset.get_vocab_size())
         model = VAE(embed=EMBEDDING_SIZE, encoder_hidden=ENCODER_HIDDEN_SIZE, decoder_hidden=DECODER_HIDDEN_SIZE,
                     device=my_device, vocabulary=training_dataset.get_vocab_size()).to(my_device)
         optim = torch.optim.Adam(model.parameters(), lr=LEARNING_RATE)
