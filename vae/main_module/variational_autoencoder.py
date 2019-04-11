@@ -82,7 +82,8 @@ if __name__ == "__main__":
 
     if training:
         training_dataset = VAEData(filepath=TRAINING, vocab_file=VOCAB, max_seq_len=MAX_SEQ_LEN, vocab_file_offset=1,
-                                   data_file_offset=1)
+                                   data_file_offset=1, min_freq=2)
+        print(training_dataset.get_vocab_size())
         model = VAE(embed=EMBEDDING_SIZE, encoder_hidden=ENCODER_HIDDEN_SIZE, decoder_hidden=DECODER_HIDDEN_SIZE,
                     device=my_device, vocabulary=training_dataset.get_vocab_size()).to(my_device)
         optim = torch.optim.Adam(model.parameters(), lr=LEARNING_RATE)
@@ -121,7 +122,7 @@ if __name__ == "__main__":
                  "optimizer_state_dict": optim.state_dict()}, MODEL_FILE_PATH)
     else:
         testing_dataset = VAEData(filepath=TESTING, vocab_file=VOCAB, max_seq_len=MAX_SEQ_LEN, vocab_file_offset=1,
-                                  data_file_offset=0)
+                                  data_file_offset=0, min_freq=2)
         model = VAE(embed=EMBEDDING_SIZE, encoder_hidden=ENCODER_HIDDEN_SIZE, decoder_hidden=DECODER_HIDDEN_SIZE,
                     device=my_device, vocabulary=testing_dataset.get_vocab_size()).to(my_device)
         if pretrained:
