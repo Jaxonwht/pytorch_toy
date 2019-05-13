@@ -12,7 +12,8 @@ from vae.main_module.encoder_unit import Encoder
 
 
 class VAE(nn.Module):
-    def __init__(self, embed, encoder_hidden, decoder_hidden, device, attention, embedding_weights=None, vocabulary=None):
+    def __init__(self, embed, encoder_hidden, decoder_hidden, device, attention, embedding_weights=None,
+                 vocabulary=None):
         super().__init__()
         if vocabulary:
             self.embedding = Embedding(vocabulary, embed)
@@ -33,7 +34,8 @@ class VAE(nn.Module):
         '''
         input = [self.embedding(token) for token in x]
         input = torch.nn.utils.rnn.pack_sequence(input)
-        encoder_outs, encoder_hidden, kl_loss = self.encoder(input, lengths, variation=variation, attention=self.attention_used)
+        encoder_outs, encoder_hidden, kl_loss = self.encoder(input, lengths, variation=variation,
+                                                             attention=self.attention_used)
         decoder_hidden = self.translator_activation(self.translator(encoder_hidden))
         out = self.decoder(x, decoder_hidden, encoder_outs, lengths, teacher_forcing_ratio=teacher_forcing_ratio)
         return out, kl_loss
@@ -50,7 +52,8 @@ class VAE(nn.Module):
             length = torch.tensor([len(input)])
             input = self.embedding(input)
             input = torch.nn.utils.rnn.pack_sequence([input])
-            encoder_outs, encoder_hidden, _ = self.encoder(input, length, variation=variation, attention=self.attention_used)
+            encoder_outs, encoder_hidden, _ = self.encoder(input, length, variation=variation,
+                                                           attention=self.attention_used)
             decoder_hidden = self.translator_activation(self.translator(encoder_hidden))
             out = self.decoder.inference(initial_hidden=decoder_hidden, encoder_outs=encoder_outs,
                                          beam_width=beam_width, length=length,
@@ -114,7 +117,10 @@ if __name__ == "__main__":
                 total_loss.backward()
                 optim.step()
                 if batch % 10 == 0:
-                    print("Epoch {}, Batch {}, KL Loss {}, Reconstruction Loss {}, Total Loss {}".format(epoch, batch, kl_loss.item(), reconstruction_loss.item(), total_loss.item()))
+                    print("Epoch {}, Batch {}, KL Loss {}, Reconstruction Loss {}, Total Loss {}".format(epoch, batch,
+                                                                                                         kl_loss.item(),
+                                                                                                         reconstruction_loss.item(),
+                                                                                                         total_loss.item()))
             print("Saving checkpoints...")
             torch.save(
                 {"Epoch": epoch, "KL Loss": kl_loss.item(), "Reconstruction Loss": reconstruction_loss.item(),

@@ -26,7 +26,6 @@ for line in r_test:
     if not line.isspace():
         vocab.write(line)
 
-
 vocab.close()
 d_train.close()
 r_train.close()

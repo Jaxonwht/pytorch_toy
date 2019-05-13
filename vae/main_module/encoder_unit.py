@@ -37,14 +37,16 @@ class Encoder(nn.Module):
                                                                      logvar_out_list[batch, :lengths[batch].item()])
                     kl_loss = kl_loss.add(
                         self.kl_divergence_loss(mu_out_list[batch, :lengths[batch].item()],
-                                                 logvar_out_list[batch, :lengths[batch].item()]))
+                                                logvar_out_list[batch, :lengths[batch].item()]))
                     hidden[batch] = out[batch, lengths[batch].item() - 1]
                 kl_loss = kl_loss.div(len(lengths))
                 return out, hidden, kl_loss
             else:
                 mu_hidden = torch.cat((mu_hidden[0], mu_hidden[1]), dim=1)
                 logvar_hidden = torch.cat((logvar_hidden[0], logvar_hidden[1]), dim=1)
-                return mu_out_list, self.sample(mu_hidden, logvar_hidden), self.kl_divergence_loss(mu_hidden, logvar_hidden) / len(lengths)
+                return mu_out_list, self.sample(mu_hidden, logvar_hidden), self.kl_divergence_loss(mu_hidden,
+                                                                                                   logvar_hidden) / len(
+                    lengths)
         else:
             out, hidden = self.mu(x)
             out, _ = pad_packed_sequence(out, batch_first=True, total_length=lengths[0])
