@@ -12,18 +12,19 @@ from vae.main_module.encoder_unit import Encoder
 
 
 class VAE(nn.Module):
-    def __init__(self, embed, encoder_hidden, decoder_hidden, device, embedding_weights=None, vocabulary=None):
+    def __init__(self, embed, encoder_hidden, decoder_hidden, device, attention, embedding_weights=None, vocabulary=None):
         super().__init__()
         if vocabulary:
             self.embedding = Embedding(vocabulary, embed)
         else:
             self.embedding = Embedding.from_pretrained(embeddings=embedding_weights)
+        self.attention_used = attention
         self.encoder = Encoder(hidden=encoder_hidden, embed=embed, device=device)
         self.translator = Linear(in_features=encoder_hidden * 2, out_features=decoder_hidden)
         self.translator_activation = nn.LeakyReLU()
         self.decoder = Decoder(encoder_hidden=encoder_hidden, decoder_hidden=decoder_hidden,
                                embedding_layer=self.embedding,
-                               device=device)
+                               device=device, attention=attention)
 
     def forward(self, x, lengths, teacher_forcing_ratio, variation):
         '''
@@ -32,7 +33,7 @@ class VAE(nn.Module):
         '''
         input = [self.embedding(token) for token in x]
         input = torch.nn.utils.rnn.pack_sequence(input)
-        encoder_outs, encoder_hidden, kl_loss = self.encoder(input, lengths, variation=variation)
+        encoder_outs, encoder_hidden, kl_loss = self.encoder(input, lengths, variation=variation, attention=self.attention_used)
         decoder_hidden = self.translator_activation(self.translator(encoder_hidden))
         out = self.decoder(x, decoder_hidden, encoder_outs, lengths, teacher_forcing_ratio=teacher_forcing_ratio)
         return out, kl_loss
@@ -49,7 +50,7 @@ class VAE(nn.Module):
             length = torch.tensor([len(input)])
             input = self.embedding(input)
             input = torch.nn.utils.rnn.pack_sequence([input])
-            encoder_outs, encoder_hidden, _ = self.encoder(input, length, variation=variation)
+            encoder_outs, encoder_hidden, _ = self.encoder(input, length, variation=variation, attention=self.attention_used)
             decoder_hidden = self.translator_activation(self.translator(encoder_hidden))
             out = self.decoder.inference(initial_hidden=decoder_hidden, encoder_outs=encoder_outs,
                                          beam_width=beam_width, length=length,
@@ -62,6 +63,7 @@ if __name__ == "__main__":
         my_device = torch.device("cuda")
     else:
         my_device = torch.device("cpu")
+    ATTENTION = False
     BATCH_SIZE = 30
     MAX_SEQ_LEN = 50
     ENCODER_HIDDEN_SIZE = 300
@@ -76,15 +78,15 @@ if __name__ == "__main__":
     TESTING = "../../data/democratic_only.test.en"
     PRETRAINED_MODEL_FILE_PATH = "../model/checkpoint.pt"
     MODEL_FILE_PATH = "../model/checkpoint.pt"
-    training = True
+    training = False
     pretrained = False
     variation = False
 
     if training:
         training_dataset = VAEData(filepath=TRAINING, vocab_file=VOCAB, max_seq_len=MAX_SEQ_LEN, vocab_file_offset=1,
-                                   data_file_offset=1)
+                                   data_file_offset=1, min_freq=2)
         model = VAE(embed=EMBEDDING_SIZE, encoder_hidden=ENCODER_HIDDEN_SIZE, decoder_hidden=DECODER_HIDDEN_SIZE,
-                    device=my_device, vocabulary=training_dataset.get_vocab_size()).to(my_device)
+                    device=my_device, vocabulary=training_dataset.get_vocab_size(), attention=ATTENTION).to(my_device)
         optim = torch.optim.Adam(model.parameters(), lr=LEARNING_RATE)
         if pretrained:
             model.load_state_dict(torch.load(PRETRAINED_MODEL_FILE_PATH)["model_state_dict"], strict=False)
@@ -121,9 +123,9 @@ if __name__ == "__main__":
                  "optimizer_state_dict": optim.state_dict()}, MODEL_FILE_PATH)
     else:
         testing_dataset = VAEData(filepath=TESTING, vocab_file=VOCAB, max_seq_len=MAX_SEQ_LEN, vocab_file_offset=1,
-                                  data_file_offset=0)
+                                  data_file_offset=0, min_freq=2)
         model = VAE(embed=EMBEDDING_SIZE, encoder_hidden=ENCODER_HIDDEN_SIZE, decoder_hidden=DECODER_HIDDEN_SIZE,
-                    device=my_device, vocabulary=testing_dataset.get_vocab_size()).to(my_device)
+                    device=my_device, vocabulary=testing_dataset.get_vocab_size(), attention=ATTENTION).to(my_device)
         if pretrained:
             model.load_state_dict(torch.load(PRETRAINED_MODEL_FILE_PATH)["model_state_dict"])
         for i in range(100):

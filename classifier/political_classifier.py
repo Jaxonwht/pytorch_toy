@@ -47,8 +47,8 @@ if __name__ == "__main__":
     TESTING = "../data/democratic_only.dev.en"
     PRETRAINED_MODEL_FILE_PATH = "model/checkpoint.pt"
     MODEL_FILE_PATH = "model/checkpoint.pt"
-    pretrained = False
-    training = True
+    pretrained = True
+    training = False
     variation = False
 
     if training:
@@ -91,7 +91,7 @@ if __name__ == "__main__":
                  "optimizer_state_dict": optim.state_dict()}, MODEL_FILE_PATH)
     else:
         training_data = VAEData(filepath=TRAINING, vocab_file=VOCAB, max_seq_len=MAX_SEQ_LEN, data_file_offset=1,
-                                vocab_file_offset=1)
+                                vocab_file_offset=1, min_freq=2)
         model = Classifier(vocab_size=training_data.get_vocab_size(), rnn_hidden_dim=HIDDEN_DIM,
                            mid_hidden_dim1=MID_HIDDEN_1, mid_hidden_dim2=MID_HIDDEN_2, class_number=2).to(my_device)
         model.load_state_dict(torch.load(PRETRAINED_MODEL_FILE_PATH)["model_state_dict"])
@@ -114,4 +114,5 @@ if __name__ == "__main__":
                 target = torch.tensor([x[1] for x in raw], device=my_device, requires_grad=False)
                 pack = nn.utils.rnn.pack_sequence(input).to(my_device)
                 scores = model(pack)
-                print(F.softmax(scores))
+                print(target)
+                print(F.softmax(scores, dim=0))

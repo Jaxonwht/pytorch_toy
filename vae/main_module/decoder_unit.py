@@ -6,14 +6,19 @@ from vae.main_module.attention_unit import Attention
 
 
 class Decoder(nn.Module):
-    def __init__(self, encoder_hidden, decoder_hidden, embedding_layer, device):
+    def __init__(self, encoder_hidden, decoder_hidden, embedding_layer, device, attention):
         super().__init__()
         self.device = device
         self.embedding = embedding_layer
+        self.attention_used = attention
         vocab_size = embedding_layer.weight.size()[0]
         embed = embedding_layer.weight.size()[1]
-        self.gru_cell = nn.GRUCell(input_size=embed + 2 * encoder_hidden, hidden_size=decoder_hidden)
-        self.attention = Attention(encoder_hidden_dim=encoder_hidden, decoder_hidden_dim=decoder_hidden, device=device)
+        if attention:
+            self.gru_cell = nn.GRUCell(input_size=embed + 2 * encoder_hidden, hidden_size=decoder_hidden)
+            self.attention = Attention(encoder_hidden_dim=encoder_hidden, decoder_hidden_dim=decoder_hidden,
+                                       device=device)
+        else:
+            self.gru_cell = nn.GRUCell(input_size=embed, hidden_size=decoder_hidden)
         self.interpret = nn.Linear(in_features=decoder_hidden, out_features=vocab_size)
 
     def forward(self, input, hidden, encoder_outs, lengths, teacher_forcing_ratio):
@@ -31,16 +36,19 @@ class Decoder(nn.Module):
         # out = [batch, max_seq_len, vocab_size]
         out[:, 0, 0] = torch.ones(len(lengths))
         for index in range(1, encoder_outs.size()[1]):
-            context = self.attention(encoder_outs, hidden, lengths)
-            # context = [batch, 2 x encoder_hidden_dim]
             if torch.rand(1) < teacher_forcing_ratio:
                 selected = padded_input[:, index - 1, :]
             else:
                 selected = self.embedding(torch.argmax(out[:, index - 1, :], dim=1).to(self.device))
-            # selected = [batch, embed]
-            modified_input = torch.cat((selected, context), dim=1)
-            # modified_input = [batch, embed + 2 x encoder_hidden_dim]
-            hidden = self.gru_cell(modified_input, hidden)
+                # selected = [batch, embed]
+            if self.attention_used:
+                context = self.attention(encoder_outs, hidden, lengths)
+                # context = [batch, 2 x encoder_hidden_dim]
+                modified_input = torch.cat((selected, context), dim=1)
+                # modified_input = [batch, embed + 2 x encoder_hidden_dim]
+                hidden = self.gru_cell(modified_input, hidden)
+            else:
+                hidden = self.gru_cell(selected, hidden)
             out[:, index, :] = self.interpret(hidden)
         return out
 
@@ -54,15 +62,18 @@ class Decoder(nn.Module):
         :return: [some_other_seq_len]
         '''
         logsoftmax = nn.LogSoftmax(dim=1)
-        context = self.attention(encoder_outs, initial_hidden, length)
-        modified_input = torch.cat((self.embedding(torch.tensor([0]).to(self.device)), context), dim=1)
-        hidden = self.gru_cell(modified_input, initial_hidden)
+        if self.attention_used:
+            context = self.attention(encoder_outs, initial_hidden, length)
+            modified_input = torch.cat((self.embedding(torch.tensor([0], device=self.device)), context), dim=1)
+            hidden = self.gru_cell(modified_input, initial_hidden)
+        else:
+            hidden = self.gru_cell(self.embedding(torch.tensor([0], device=self.device)), initial_hidden)
         out = logsoftmax(self.interpret(hidden)).squeeze(0)
         vocab_size = len(out)
         topk, indices = torch.topk(out, beam_width)
         tokens_seq = []
         for i in range(beam_width):
-            tokens_seq.append([torch.tensor([0]).to(self.device), indices[i]])
+            tokens_seq.append([torch.tensor([0], device=self.device), indices[i]])
         # tokens_seq is a list, len(list) = beam_width
         hidden_seq = hidden.repeat(beam_width, 1)
         # hidden_seq = [beam_width, decoder_hidden_dim]
@@ -74,11 +85,14 @@ class Decoder(nn.Module):
         while True:
             if indices[0].item() == 1 or len(tokens_seq[0]) == max_seq_len:
                 return torch.tensor([j.item() for j in tokens_seq[0]])
-            context = self.attention(encoder_outs, hidden_seq, length)
-            modified_input = torch.cat((self.embedding(indices), context), dim=1)
-            # modified_input = [beam_width, embedding + 2 x encoder_hidden_dim]
-            hidden = self.gru_cell(modified_input, hidden_seq)
-            # hidden = [beam_width, decoder_hidden_dim]
+            if self.attention_used:
+                context = self.attention(encoder_outs, hidden_seq, length)
+                modified_input = torch.cat((self.embedding(indices), context), dim=1)
+                # modified_input = [beam_width, embedding + 2 x encoder_hidden_dim]
+                hidden = self.gru_cell(modified_input, hidden_seq)
+                # hidden = [beam_width, decoder_hidden_dim]
+            else:
+                hidden = self.gru_cell(self.embedding(indices), hidden_seq)
             out = logsoftmax(self.interpret(hidden))
             # out = [beam_width, vocab_size]
             out += logprob_seq.unsqueeze(1).repeat(1, vocab_size)

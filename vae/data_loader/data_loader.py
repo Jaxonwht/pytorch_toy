@@ -3,7 +3,7 @@ from torch.utils.data import Dataset
 
 
 class VAEData(Dataset):
-    def __init__(self, filepath, vocab_file, max_seq_len, data_file_offset, vocab_file_offset):
+    def __init__(self, filepath, vocab_file, max_seq_len, data_file_offset, vocab_file_offset, min_freq):
         super().__init__()
         END_OF_STRING = "&EOS"
         START_OF_STRING = "&SOS"
@@ -11,11 +11,18 @@ class VAEData(Dataset):
         wordlists = [line.strip().split(" ")[vocab_file_offset:] for line in open(vocab_file)]
         self.index_dict = {0: START_OF_STRING, 1: END_OF_STRING, 2: UNKNOWN}
         self.word_dict = {START_OF_STRING: 0, END_OF_STRING: 1, UNKNOWN: 2}
+        self.freqlist = {}
         self.tag = []
-        index = 2
+        index = 3
         for wordseq in wordlists:
             for word in wordseq:
-                if word not in self.word_dict:
+                if word not in self.freqlist:
+                    self.freqlist[word] = 1
+                else:
+                    self.freqlist[word] += 1
+        for wordseq in wordlists:
+            for word in wordseq:
+                if word not in self.word_dict and self.freqlist[word] >= min_freq:
                     self.word_dict[word] = index
                     self.index_dict[index] = word
                     index += 1
