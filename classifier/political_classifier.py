@@ -47,13 +47,12 @@ if __name__ == "__main__":
     TESTING = "../data/democratic_only.dev.en"
     PRETRAINED_MODEL_FILE_PATH = "model/checkpoint.pt"
     MODEL_FILE_PATH = "model/checkpoint.pt"
-    pretrained = True
-    training = False
-    variation = False
+    pretrained = False
+    training = True
 
     if training:
         training_data = VAEData(filepath=TRAINING, vocab_file=VOCAB, max_seq_len=MAX_SEQ_LEN, data_file_offset=1,
-                                vocab_file_offset=1)
+                                vocab_file_offset=1, min_freq=2)
         model = Classifier(vocab_size=training_data.get_vocab_size(), rnn_hidden_dim=HIDDEN_DIM,
                            mid_hidden_dim1=MID_HIDDEN_1, mid_hidden_dim2=MID_HIDDEN_2, class_number=2).to(my_device)
         optim = Adam(model.parameters(), lr=LEARNING_RATE)

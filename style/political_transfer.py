@@ -1,3 +1,6 @@
+import sys
+
+sys.path.append("/workspace/pytorch_toy/")
 import torch.nn as nn
 import torch.nn.functional as F
 import torch.optim
@@ -11,15 +14,14 @@ if __name__ == "__main__":
         my_device = torch.device("cuda")
     else:
         my_device = torch.device("cpu")
-    BATCH_SIZE = 30
+    BATCH_SIZE = 50
     MAX_SEQ_LEN = 50
-    ENCODER_HIDDEN_SIZE = 200
-    DECODER_HIDDEN_SIZE = 200
-    LEARNING_RATE = 1e-3
+    ENCODER_HIDDEN_SIZE = 300
+    DECODER_HIDDEN_SIZE = 300
+    LEARNING_RATE = 1e-4
     EPOCHS = 300
-    EMBEDDING_SIZE = 200
+    EMBEDDING_SIZE = 300
     BEAM_WIDTH = 3
-    RECONSTRUCTION_COEFFICIENT = 0.2
     VOCAB = "../data/vocab.txt"
     TRAINING = "../data/mixed_train.txt"
     TESTING = "../data/democratic_only.test.en"
@@ -28,17 +30,18 @@ if __name__ == "__main__":
     CLASSIFIER_MODEL_FILE_PATH = "../classifier/model/checkpoint.pt"
     training = True
     pretrained = True
-    variation = False
+    variation = True
     DESIRED_STYLE = 1
     HIDDEN_DIM = 50
     MID_HIDDEN_1 = 50
     MID_HIDDEN_2 = 10
+    ATTENTION = False
 
     if training:
         training_dataset = VAEData(filepath=TRAINING, vocab_file=VOCAB, max_seq_len=MAX_SEQ_LEN, vocab_file_offset=1,
-                                   data_file_offset=1)
+                                   data_file_offset=1, min_freq=2)
         model = VAE(embed=EMBEDDING_SIZE, encoder_hidden=ENCODER_HIDDEN_SIZE, decoder_hidden=DECODER_HIDDEN_SIZE,
-                    device=my_device, vocabulary=training_dataset.get_vocab_size()).to(my_device)
+                    device=my_device, vocabulary=training_dataset.get_vocab_size(), attention=ATTENTION).to(my_device)
         model.embedding.weight.requires_grad = False
         optim = torch.optim.Adam(filter(lambda p: p.requires_grad, model.parameters()), lr=LEARNING_RATE)
         if pretrained:
@@ -65,8 +68,8 @@ if __name__ == "__main__":
                 target.fill_(DESIRED_STYLE)
                 style_loss = classification_loss_fn(pred, target)
                 # padded_input = [batch, max_seq_len]
-                reconstruction_loss = torch.zeros(1).to(my_device)
-                for i in range(1, BATCH_SIZE):
+                reconstruction_loss = torch.zeros(1, device=my_device)
+                for i in range(BATCH_SIZE):
                     reconstruction_loss += reconstruction_loss_fn(
                         torch.matmul(F.softmax(out[i, :lengths[i]], dim=1), model.embedding.weight),
                         model.embedding(input[i]))
@@ -74,8 +77,7 @@ if __name__ == "__main__":
                 # reconstruction_loss = torch.zeros(1, device=my_device)
                 # for token_index in range(1, lengths[0]):
                 #     reconstruction_loss += loss_fn(out[:, :, token_index], padded_input[:, token_index])
-                total_loss = RECONSTRUCTION_COEFFICIENT * reconstruction_loss + (
-                        1 - RECONSTRUCTION_COEFFICIENT) * style_loss + kl_loss
+                total_loss = reconstruction_loss / 50 + style_loss + kl_loss / 2
                 optim.zero_grad()
                 total_loss.backward()
                 optim.step()
@@ -89,14 +91,14 @@ if __name__ == "__main__":
                 if batch % 1000 == 0:
                     print("Saving checkpoints...")
                     torch.save(
-                        {"Epoch": epoch, "KL Loss": kl_loss.data[0], "Reconstruction Loss": reconstruction_loss.item(),
+                        {"Epoch": epoch, "KL Loss": kl_loss.item(), "Reconstruction Loss": reconstruction_loss.item(),
                          "Style Loss": style_loss.item(),
                          "Total Loss": total_loss.item(),
                          "model_state_dict": model.state_dict(),
                          "optimizer_state_dict": optim.state_dict()}, MODEL_FILE_PATH)
     else:
         testing_dataset = VAEData(filepath=TESTING, vocab_file=VOCAB, max_seq_len=MAX_SEQ_LEN, vocab_file_offset=1,
-                                  data_file_offset=0)
+                                  data_file_offset=0, min_freq=2)
         model = VAE(embed=EMBEDDING_SIZE, encoder_hidden=ENCODER_HIDDEN_SIZE, decoder_hidden=DECODER_HIDDEN_SIZE,
                     device=my_device, vocabulary=testing_dataset.get_vocab_size()).to(my_device)
         if pretrained:

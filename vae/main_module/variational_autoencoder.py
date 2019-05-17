@@ -66,12 +66,12 @@ if __name__ == "__main__":
         my_device = torch.device("cuda")
     else:
         my_device = torch.device("cpu")
-    ATTENTION = False
+    ATTENTION = True
     BATCH_SIZE = 30
     MAX_SEQ_LEN = 50
     ENCODER_HIDDEN_SIZE = 300
     DECODER_HIDDEN_SIZE = 300
-    LEARNING_RATE = 1e-3
+    LEARNING_RATE = 1e-4
     EPOCHS = 300
     EMBEDDING_SIZE = 300
     BEAM_WIDTH = 3
@@ -80,10 +80,10 @@ if __name__ == "__main__":
     WORD2VEC_WEIGHT = "../../word2vec/model/model_state_dict.pt"
     TESTING = "../../data/democratic_only.test.en"
     PRETRAINED_MODEL_FILE_PATH = "../model/checkpoint.pt"
-    MODEL_FILE_PATH = "../model/checkpoint.pt"
-    training = False
+    MODEL_FILE_PATH = "../model/checkpoint_attention.pt"
+    training = True
     pretrained = False
-    variation = False
+    variation = True
 
     if training:
         training_dataset = VAEData(filepath=TRAINING, vocab_file=VOCAB, max_seq_len=MAX_SEQ_LEN, vocab_file_offset=1,
@@ -111,8 +111,8 @@ if __name__ == "__main__":
                 reconstruction_loss = reconstruction_loss / BATCH_SIZE
                 # reconstruction_loss = torch.zeros(1, device=my_device)
                 # for token_index in range(1, lengths[0]):
-                #     reconstruction_loss += loss_fn(out[:, :, token_index], padded_input[:, token_index])
-                total_loss = reconstruction_loss + kl_loss
+                # reconstruction_loss += loss_fn(out[:, :, token_index], padded_input[:, token_index])
+                total_loss = reconstruction_loss + kl_loss / 20
                 optim.zero_grad()
                 total_loss.backward()
                 optim.step()
@@ -138,7 +138,7 @@ if __name__ == "__main__":
             input = testing_dataset[i].to(my_device)
             print("The original sequence is:")
             print([testing_dataset.get_token(j) for j in input.tolist()])
-            out = model.inference(input=input, beam_width=BEAM_WIDTH, variation=False, max_seq_len=MAX_SEQ_LEN)
+            out = model.inference(input=input, beam_width=BEAM_WIDTH, variation=variation, max_seq_len=MAX_SEQ_LEN)
             print("The translated sequence is:")
             print([testing_dataset.get_token(j.item()) for j in out])
             print()
