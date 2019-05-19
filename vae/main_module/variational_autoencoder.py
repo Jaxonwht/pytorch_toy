@@ -67,7 +67,7 @@ if __name__ == "__main__":
     else:
         my_device = torch.device("cpu")
     ATTENTION = True
-    BATCH_SIZE = 30
+    BATCH_SIZE = 50
     MAX_SEQ_LEN = 50
     ENCODER_HIDDEN_SIZE = 300
     DECODER_HIDDEN_SIZE = 300
@@ -100,7 +100,7 @@ if __name__ == "__main__":
                 input = [training_dataset[batch * BATCH_SIZE + i].to(my_device) for i in range(BATCH_SIZE)]
                 input.sort(key=lambda seq: len(seq), reverse=True)
                 lengths = torch.tensor([len(seq) for seq in input]).to(my_device)
-                out, kl_loss = model(input, lengths, teacher_forcing_ratio=0.9, variation=variation)
+                out, kl_loss = model(input, lengths, teacher_forcing_ratio=0.5, variation=variation)
                 padded_input = nn.utils.rnn.pad_sequence(input, batch_first=True, padding_value=-1).to(my_device)
                 # padded_input = [batch, max_seq_len]
                 out = out.permute(0, 2, 1)

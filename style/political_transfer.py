@@ -25,10 +25,11 @@ if __name__ == "__main__":
     VOCAB = "../data/vocab.txt"
     TRAINING = "../data/mixed_train.txt"
     TESTING = "../data/democratic_only.test.en"
-    PRETRAINED_MODEL_FILE_PATH = "../vae/model/checkpoint.pt"
+    VAE_MODEL_FILE_PATH = "../vae/model/checkpoint.pt"
+    PRETRAINED_MODEL_FILE_PATH = "model/republican_style.pt"
     MODEL_FILE_PATH = "model/republican_style.pt"
     CLASSIFIER_MODEL_FILE_PATH = "../classifier/model/checkpoint.pt"
-    training = True
+    training = False
     pretrained = True
     variation = True
     DESIRED_STYLE = 1
@@ -46,6 +47,8 @@ if __name__ == "__main__":
         optim = torch.optim.Adam(filter(lambda p: p.requires_grad, model.parameters()), lr=LEARNING_RATE)
         if pretrained:
             model.load_state_dict(torch.load(PRETRAINED_MODEL_FILE_PATH)["model_state_dict"])
+        else:
+            model.load_state_dict(torch.load(VAE_MODEL_FILE_PATH)["model_state_dict"])
         classification_loss_fn = nn.CrossEntropyLoss()
         reconstruction_loss_fn = nn.MSELoss(reduction="sum")
         classifier = Classifier(vocab_size=training_dataset.get_vocab_size(), rnn_hidden_dim=HIDDEN_DIM,
@@ -77,7 +80,7 @@ if __name__ == "__main__":
                 # reconstruction_loss = torch.zeros(1, device=my_device)
                 # for token_index in range(1, lengths[0]):
                 #     reconstruction_loss += loss_fn(out[:, :, token_index], padded_input[:, token_index])
-                total_loss = reconstruction_loss / 50 + style_loss + kl_loss / 2
+                total_loss = reconstruction_loss / 20 + style_loss / 2 + kl_loss / 2
                 optim.zero_grad()
                 total_loss.backward()
                 optim.step()
@@ -100,7 +103,7 @@ if __name__ == "__main__":
         testing_dataset = VAEData(filepath=TESTING, vocab_file=VOCAB, max_seq_len=MAX_SEQ_LEN, vocab_file_offset=1,
                                   data_file_offset=0, min_freq=2)
         model = VAE(embed=EMBEDDING_SIZE, encoder_hidden=ENCODER_HIDDEN_SIZE, decoder_hidden=DECODER_HIDDEN_SIZE,
-                    device=my_device, vocabulary=testing_dataset.get_vocab_size()).to(my_device)
+                    device=my_device, vocabulary=testing_dataset.get_vocab_size(), attention=ATTENTION).to(my_device)
         if pretrained:
             model.load_state_dict(torch.load(MODEL_FILE_PATH)["model_state_dict"])
         for i in range(10):
