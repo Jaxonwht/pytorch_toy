@@ -14,6 +14,7 @@ if __name__ == "__main__":
         my_device = torch.device("cuda")
     else:
         my_device = torch.device("cpu")
+    ATTENTION = False
     BATCH_SIZE = 50
     MAX_SEQ_LEN = 50
     ENCODER_HIDDEN_SIZE = 300
@@ -25,9 +26,14 @@ if __name__ == "__main__":
     VOCAB = "../data/vocab.txt"
     TRAINING = "../data/mixed_train.txt"
     TESTING = "../data/democratic_only.test.en"
-    VAE_MODEL_FILE_PATH = "../vae/model/checkpoint.pt"
-    PRETRAINED_MODEL_FILE_PATH = "model/republican_style.pt"
-    MODEL_FILE_PATH = "model/republican_style.pt"
+    if ATTENTION:
+        VAE_MODEL_FILE_PATH = "../vae/model/checkpoint_attention.pt"
+        PRETRAINED_MODEL_FILE_PATH = "model/republican_style_attention.pt"
+        MODEL_FILE_PATH = "model/republican_style_attention.pt"
+    else:
+        VAE_MODEL_FILE_PATH = "../vae/model/checkpoint.pt"
+        PRETRAINED_MODEL_FILE_PATH = "model/republican_style.pt"
+        MODEL_FILE_PATH = "model/republican_style.pt"
     CLASSIFIER_MODEL_FILE_PATH = "../classifier/model/checkpoint.pt"
     training = False
     pretrained = True
@@ -36,19 +42,19 @@ if __name__ == "__main__":
     HIDDEN_DIM = 50
     MID_HIDDEN_1 = 50
     MID_HIDDEN_2 = 10
-    ATTENTION = False
 
     if training:
         training_dataset = VAEData(filepath=TRAINING, vocab_file=VOCAB, max_seq_len=MAX_SEQ_LEN, vocab_file_offset=1,
                                    data_file_offset=1, min_freq=2)
         model = VAE(embed=EMBEDDING_SIZE, encoder_hidden=ENCODER_HIDDEN_SIZE, decoder_hidden=DECODER_HIDDEN_SIZE,
                     device=my_device, vocabulary=training_dataset.get_vocab_size(), attention=ATTENTION).to(my_device)
-        model.embedding.weight.requires_grad = False
         optim = torch.optim.Adam(filter(lambda p: p.requires_grad, model.parameters()), lr=LEARNING_RATE)
         if pretrained:
             model.load_state_dict(torch.load(PRETRAINED_MODEL_FILE_PATH)["model_state_dict"])
         else:
             model.load_state_dict(torch.load(VAE_MODEL_FILE_PATH)["model_state_dict"])
+        model.embedding.weight.requires_grad = False
+        model.encoder.untrain()
         classification_loss_fn = nn.CrossEntropyLoss()
         reconstruction_loss_fn = nn.MSELoss(reduction="sum")
         classifier = Classifier(vocab_size=training_dataset.get_vocab_size(), rnn_hidden_dim=HIDDEN_DIM,
@@ -61,8 +67,9 @@ if __name__ == "__main__":
                 input = [training_dataset[batch * BATCH_SIZE + i].to(my_device) for i in range(BATCH_SIZE)]
                 input.sort(key=lambda seq: len(seq), reverse=True)
                 lengths = torch.tensor([len(x) for x in input])
-                out, kl_loss = model(input, lengths, teacher_forcing_ratio=0.9, variation=variation)
+                out, _, before_hidden = model(input, lengths, teacher_forcing_ratio=0.9, variation=variation)
                 # out = [batch, max_seq_len, vocab_size]
+                # before_hidden = [batch, encoder_hidden]
                 packed_out = torch.nn.utils.rnn.pack_padded_sequence(input=F.softmax(out, dim=2), lengths=lengths,
                                                                      batch_first=True)
                 pred = classifier(packed_out)
@@ -72,15 +79,16 @@ if __name__ == "__main__":
                 style_loss = classification_loss_fn(pred, target)
                 # padded_input = [batch, max_seq_len]
                 reconstruction_loss = torch.zeros(1, device=my_device)
-                for i in range(BATCH_SIZE):
-                    reconstruction_loss += reconstruction_loss_fn(
-                        torch.matmul(F.softmax(out[i, :lengths[i]], dim=1), model.embedding.weight),
-                        model.embedding(input[i]))
-                reconstruction_loss = reconstruction_loss / BATCH_SIZE
-                # reconstruction_loss = torch.zeros(1, device=my_device)
-                # for token_index in range(1, lengths[0]):
-                #     reconstruction_loss += loss_fn(out[:, :, token_index], padded_input[:, token_index])
-                total_loss = reconstruction_loss / 20 + style_loss / 2 + kl_loss / 2
+                _, after_hidden, _ = model.encoder(packed_out, lengths, variation=variation, attention=ATTENTION)
+                reconstruction_loss = reconstruction_loss_fn(before_hidden, after_hidden) / BATCH_SIZE
+                
+                # old reconstruction loss
+                # for i in range(BATCH_SIZE):
+                # reconstruction_loss += reconstruction_loss_fn(
+                # torch.matmul(F.softmax(out[i, :lengths[i]], dim=1), model.embedding.weight),
+                # model.embedding(input[i]))
+                
+                total_loss = reconstruction_loss / 20 + style_loss / 2
                 optim.zero_grad()
                 total_loss.backward()
                 optim.step()

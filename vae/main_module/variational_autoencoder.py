@@ -38,7 +38,7 @@ class VAE(nn.Module):
                                                              attention=self.attention_used)
         decoder_hidden = self.translator_activation(self.translator(encoder_hidden))
         out = self.decoder(x, decoder_hidden, encoder_outs, lengths, teacher_forcing_ratio=teacher_forcing_ratio)
-        return out, kl_loss
+        return out, kl_loss, encoder_hidden
 
     def inference(self, input, beam_width, variation, max_seq_len):
         '''
@@ -66,7 +66,7 @@ if __name__ == "__main__":
         my_device = torch.device("cuda")
     else:
         my_device = torch.device("cpu")
-    ATTENTION = True
+    ATTENTION = False
     BATCH_SIZE = 50
     MAX_SEQ_LEN = 50
     ENCODER_HIDDEN_SIZE = 300
@@ -74,13 +74,17 @@ if __name__ == "__main__":
     LEARNING_RATE = 1e-4
     EPOCHS = 300
     EMBEDDING_SIZE = 300
-    BEAM_WIDTH = 3
+    BEAM_WIDTH = 4
     VOCAB = "../../data/vocab.txt"
     TRAINING = "../../data/mixed_train.txt"
     WORD2VEC_WEIGHT = "../../word2vec/model/model_state_dict.pt"
     TESTING = "../../data/democratic_only.test.en"
-    PRETRAINED_MODEL_FILE_PATH = "../model/checkpoint.pt"
-    MODEL_FILE_PATH = "../model/checkpoint_attention.pt"
+    if ATTENTION:
+        PRETRAINED_MODEL_FILE_PATH = "../model/checkpoint_attention.pt"
+        MODEL_FILE_PATH = "../model/checkpoint_attention.pt"
+    else:
+        PRETRAINED_MODEL_FILE_PATH = "../model/checkpoint.pt"
+        MODEL_FILE_PATH = "../model/checkpoint.pt"
     training = True
     pretrained = False
     variation = True
@@ -100,7 +104,7 @@ if __name__ == "__main__":
                 input = [training_dataset[batch * BATCH_SIZE + i].to(my_device) for i in range(BATCH_SIZE)]
                 input.sort(key=lambda seq: len(seq), reverse=True)
                 lengths = torch.tensor([len(seq) for seq in input]).to(my_device)
-                out, kl_loss = model(input, lengths, teacher_forcing_ratio=0.5, variation=variation)
+                out, kl_loss, _ = model(input, lengths, teacher_forcing_ratio=0.5, variation=variation)
                 padded_input = nn.utils.rnn.pad_sequence(input, batch_first=True, padding_value=-1).to(my_device)
                 # padded_input = [batch, max_seq_len]
                 out = out.permute(0, 2, 1)
@@ -112,7 +116,7 @@ if __name__ == "__main__":
                 # reconstruction_loss = torch.zeros(1, device=my_device)
                 # for token_index in range(1, lengths[0]):
                 # reconstruction_loss += loss_fn(out[:, :, token_index], padded_input[:, token_index])
-                total_loss = reconstruction_loss + kl_loss / 20
+                total_loss = reconstruction_loss + kl_loss / 10
                 optim.zero_grad()
                 total_loss.backward()
                 optim.step()
